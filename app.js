@@ -10,6 +10,9 @@ let area = document.getElementById('area');
 let xIndex = document.getElementById('xIndex');
 let yIndex = document.getElementById('yIndex');
 let smooth = document.getElementById('smooth');
+let step = document.getElementById('step');
+let barStack = document.getElementById('barStack');
+let zIndex = document.getElementById('zIndex');
 let xType = document.getElementById('xType');
 let yMin = document.getElementById('yMin');
 let yMax = document.getElementById('yMax');
@@ -525,6 +528,42 @@ let renderChart = (data, title) => {
 
 
 
+  // Barras apiladas 100%: dataset con los valores Y normalizados para que
+  // cada fila sume 100 (sólo se aplica sin transformaciones ni diferencias,
+  // ya que en ese caso el orden/agrupación redirigen a otros datasets)
+  let hasTransforms = groupCheck.checked || histogram.checked || regression.checked || orderIndex.value != '';
+  if (chartType.value == 'bar' && barStack.value == 'percent' && !hasTransforms && !calcDiffCheck.checked) {
+    let norm = [data[0].slice()];
+    for (let i = 1; i < data.length; i++) {
+      let sum = 0;
+      for (let c = 1; c < data[i].length; c++) {
+        let v = parseFloat(data[i][c]);
+        if (!isNaN(v)) sum += Math.abs(v);
+      }
+      norm.push(data[i].map((cell, c) => {
+        if (c === 0) return cell;
+        let v = parseFloat(data[i][c]);
+        return (isNaN(v) || sum === 0) ? cell : v / sum * 100;
+      }));
+    }
+    chartOptions.dataset.push({
+      id: 'stack100',
+      source: norm
+    });
+  }
+
+  // Burbujas: escala de tamaños entre la columna Z y su valor máximo
+  let zMax = null, zc = null;
+  if (chartType.value == 'scatter' && zIndex.value != '') {
+    zc = parseInt(zIndex.value);
+    zMax = 0;
+    for (let i = 1; i < data.length; i++) {
+      let v = parseFloat(data[i][zc]);
+      if (!isNaN(v) && v > zMax) zMax = v;
+    }
+    if (zMax <= 0) zMax = null;
+  }
+
   for (let k = 1; k < data[0].length; k++) {
     let addOrder = orderIndex.value != '';
     let addHisto = histogram.checked;
@@ -570,6 +609,21 @@ let renderChart = (data, title) => {
     }
     if (smooth.checked && chartType.value == 'line') {
       seriesOptions.smooth = 0.3;
+    }
+    if (step.checked && chartType.value == 'line') {
+      seriesOptions.step = 'start';
+    }
+    if (chartType.value == 'bar' && barStack.value != 'normal') {
+      seriesOptions.stack = 'total';
+      if (barStack.value == 'percent' && !hasTransforms && !calcDiffCheck.checked) {
+        seriesOptions.datasetIndex = findDataset(chartOptions, 'stack100');
+      }
+    }
+    if (chartType.value == 'scatter' && zMax !== null) {
+      seriesOptions.symbolSize = (val, params) => {
+        let v = parseFloat(params.data ? params.data[zc] : params.value[zc]);
+        return (isNaN(v) || zMax === 0) ? 3 : 5 + 25 * Math.abs(v) / zMax;
+      };
     }
     if (showMin.checked || showMax.checked) {
       seriesOptions.markPoint = {

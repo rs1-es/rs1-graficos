@@ -434,6 +434,15 @@
             <span data-i18n="hintChartType">(Selecciona entre gráfico de <code>líneas</code>, <code>barras</code>, <code>puntos</code> o tipo <code>tarta</code>)</span>
           </div>
           <div class="category">
+            <label for="barStack" data-i18n="stackLabel">Barras apiladas:</label>
+            <select id="barStack" name="barStack" autocomplete="off">
+              <option value="normal" data-i18n="optBarNormal">No</option>
+              <option value="stacked" data-i18n="optBarStacked">Sí</option>
+              <option value="percent" data-i18n="optBarPercent">Sí, 100%</option>
+            </select>
+            <span data-i18n="hintStack">(Sólo para gráficos de barras con varias columnas Y: apila las series o las normaliza para que sumen 100%)</span>
+          </div>
+          <div class="category">
             <label for="area" data-i18n="areaLabel">Área:</label>
             <input type="checkbox" id="area" autocomplete="off"/>
             <span data-i18n="hintArea">(Sólo para gráficos de líneas: convierte líneas en áreas)</span>
@@ -444,10 +453,20 @@
             <span data-i18n="hintSmooth">(Sólo para gráficos de líneas: suaviza las líneas)</span>
           </div>
           <div class="category">
+            <label for="step" data-i18n="stepLabel">Escalonar línea:</label>
+            <input type="checkbox" id="step" autocomplete="off"/>
+            <span data-i18n="hintStep">(Sólo para gráficos de líneas: convierte las líneas en escalones, útil para mostrar cambios discretos)</span>
+          </div>
+          <div class="category">
             <label data-i18n="columnsLabel">Columnas:</label>
             <input type="number" id="xIndex" placeholder="X" style="width: 60px" autocomplete="off"/>
             <input type="number" id="yIndex" placeholder="Y" style="width: 60px" autocomplete="off"/>
             <span data-i18n="hintColumns">(Indica qué columna utilizar para el eje X y el eje Y. Por defecto se utiliza la primera, n.º 0, como X y el resto como Y)</span>
+          </div>
+          <div class="category">
+            <label for="zIndex" data-i18n="zLabel">Tamaño (Z):</label>
+            <input type="number" id="zIndex" placeholder="Z" style="width: 60px" autocomplete="off"/>
+            <span data-i18n="hintZ">(Sólo para gráficos de puntos: utiliza la columna indicada para dimensionar los puntos; se escala automáticamente entre el mínimo y el máximo de la columna)</span>
           </div>
           <div class="category">
             <label for="xType" data-i18n="xTypeLabel">Tipo X:</label>
@@ -556,7 +575,7 @@
     <div id="dropOverlay"><span data-i18n="dropHere">Suelta el archivo aquí para cargarlo</span></div>
     <script src="ecStat.min.js" defer></script>
     <script src="ecSimpleTransform.js" defer></script>
-    <script src="i18n.js?v=1.0" defer></script>
-    <script src="app.js?v=1.3" defer></script>
+    <script src="i18n.js?v=1.1" defer></script>
+    <script src="app.js?v=1.4" defer></script>
   </body>
 </html>
