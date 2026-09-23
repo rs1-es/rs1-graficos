@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+    <meta name="description" content="Crea gráficos fácilmente desde archivos CSV/TSV y JSON"/>
+    <title>RS1 Gráficos</title>
+    <script>document.documentElement.dataset.theme = localStorage.getItem('theme') || 'light';</script>
+    <script src="echarts.min.js?v=6.0.0"></script>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg"/>
+    <link rel="shortcut icon" href="favicon.png" type="image/png"/>
+    <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1e3a8a;
+      --accent: #10b981;
+      --accent-dark: #059669;
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --text: #1e293b;
+      --text-soft: #64748b;
+      --border: #e2e8f0;
+      --code-bg: #eef2ff;
+      --code-text: #3730a3;
+      --input-bg: #f8fafc;
+      --stat-bg: #f0fdf4;
+      --stat-border: #bbf7d0;
+      --stat-text: #14532d;
+      --err-bg: #fef2f2;
+      --err-border: #fecaca;
+      --err-text: #991b1b;
+      --radius: 14px;
+      --shadow: 0 1px 3px rgba(15, 23, 42, .06), 0 8px 24px rgba(15, 23, 42, .07);
+    }
+    :root[data-theme="dark"] {
+      --primary: #3b82f6;
+      --primary-dark: #93c5fd;
+      --bg: #0f172a;
+      --card: #1e293b;
+      --text: #e2e8f0;
+      --text-soft: #94a3b8;
+      --border: #334155;
+      --code-bg: #312e81;
+      --code-text: #c7d2fe;
+      --input-bg: #0f172a;
+      --stat-bg: #022c22;
+      --stat-border: #065f46;
+      --stat-text: #a7f3d0;
+      --err-bg: #450a0a;
+      --err-border: #7f1d1d;
+      --err-text: #fecaca;
+      --shadow: 0 1px 3px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .45);
+    }
+    * { box-sizing: border-box; }
+    code {
+      background-color: var(--code-bg);
+      color: var(--code-text);
+      padding: .1em .4em;
+      border-radius: 5px;
+      font-size: .88em;
+    }
+    body {
+      background-color: var(--bg);
+      margin: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      color: var(--text);
+    }
+    header {
+      position: relative;
+      background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 55%, #4f46e5 100%);
+      color: white;
+      padding: 1em 1em 1.4em;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(30, 58, 138, .35);
+      margin-bottom: -1.2em;
+    }
+    .header-actions {
+      position: absolute;
+      top: 1em;
+      right: 1em;
+      display: flex;
+      gap: .5em;
+    }
+    .header-actions button {
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.3);
+      color: white;
+      border-radius: 999px;
+      padding: .35em 1em;
+      font-size: .8em;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .header-actions button:hover { background: rgba(255,255,255,.3); }
+    header .badge {
+      display: inline-block;
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.3);
+      border-radius: 999px;
+      padding: .2em .9em;
+      font-size: .72em;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-bottom: .5em;
+    }
+    h1 {
+      margin: 0;
+      font-size: 1.5em;
+      letter-spacing: -0.02em;
+    }
+    h2 {
+      margin: .3em 0 0;
+      font-weight: 400;
+      font-size: .9em;
+      opacity: .85;
+    }
+    main {
+      padding: 2.2em 1em 1em;
+      max-width: 960px;
+      margin: auto;
+    }
+    .step {
+      background-color: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 1.4em 1.6em;
+      margin-bottom: 1.4em;
+    }
+    .step h3 {
+      margin: 0 0 1em;
+      padding-bottom: .7em;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: .6em;
+      font-size: 1.05em;
+    }
+    .step h3 .num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 26px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--primary), #4f46e5);
+      color: white;
+      font-size: .85em;
+      flex-shrink: 0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: .4em 2.4em;
+    }
+    .category {
+      padding: .7em 0;
+      border-bottom: 1px dashed var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: .5em .8em;
+    }
+    .category.full { grid-column: 1 / -1; }
+    .category label {
+      font-weight: 600;
+      font-size: .92em;
+      min-width: 175px;
+    }
+    .category span {
+      font-style: normal;
+      font-size: .82em;
+      color: var(--text-soft);
+      width: 100%;
+      line-height: 1.4;
+    }
+    input[type="text"],
+    input[type="number"],
+    input:not([type]),
+    select {
+      border: 1px solid var(--border);
+      background: var(--input-bg);
+      border-radius: 9px;
+      padding: .45em .7em;
+      font-size: .92em;
+      color: var(--text);
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input:focus, select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, .15);
+      background: var(--card);
+    }
+    /* Interruptores modernos para los checkboxes */
+    input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 40px;
+      height: 22px;
+      background: #cbd5e1;
+      border-radius: 999px;
+      position: relative;
+      cursor: pointer;
+      transition: background .2s;
+      flex-shrink: 0;
+      margin: 0;
+    }
+    input[type="checkbox"]::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 16px;
+      height: 16px;
+      background: #fff;
+      border-radius: 50%;
+      box-shadow: 0 1px 3px rgba(0,0,0,.3);
+      transition: left .2s;
+    }
+    input[type="checkbox"]:checked { background: var(--accent); }
+    input[type="checkbox"]:checked::after { left: 21px; }
+    /* Zona de carga de archivo */
+    #file {
+      position: absolute;
+      width: 1px; height: 1px;
+      opacity: 0;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+    }
+    #file + label.btnfile {
+      display: inline-flex;
+      align-items: center;
+      gap: .5em;
+      background: linear-gradient(135deg, var(--primary), #4f46e5);
+      color: #fff;
+      padding: .55em 1.2em;
+      border-radius: 9px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: .92em;
+      transition: transform .12s, box-shadow .12s;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, .3);
+    }
+    #file + label.btnfile:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(37, 99, 235, .4); }
+    #file + label.btnfile span { color: inherit; }
+    #file:focus-visible + label.btnfile { box-shadow: 0 0 0 3px rgba(37, 99, 235, .35); }
+    #fileName { font-size: .85em; color: var(--text-soft); font-style: italic; }
+    #chart { width: 100%; height: 380px; }
+    /* Estadísticas */
+    #stats { padding-top: .4em; display: flex; flex-wrap: wrap; gap: .6em; }
+    #stats p {
+      margin: 0;
+      background: var(--stat-bg);
+      border: 1px solid var(--stat-border);
+      color: var(--stat-text);
+      border-radius: 999px;
+      padding: .35em 1em;
+      font-size: .88em;
+      font-weight: 600;
+    }
+    footer {
+      background: linear-gradient(135deg, #1e3a8a, #312e81);
+      color: white;
+      padding: 1.4em 1em;
+      margin-top: 2em;
+      text-align: center;
+      font-size: .92em;
+    }
+    footer h4 {
+      margin: 0 0 .5em;
+      font-size: 1.15em;
+      letter-spacing: .02em;
+    }
+    footer p { margin: .2em 0; opacity: .85; }
+    footer a { color: #a5b4fc; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    /* El gráfico sólo se muestra cuando hay un archivo cargado */
+    .chartcol { display: none; }
+    .chartcol.visible { display: block; }
+    /* En pantallas anchas: opciones a la izquierda, gráfico fijo a la derecha */
+    @media (min-width: 1100px) {
+      main {
+        max-width: 1500px;
+        display: grid;
+        grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+        align-items: start;
+        gap: 0 1.6em;
+      }
+      .formcol { grid-column: 1; grid-row: 1; }
+      .chartcol.visible {
+        grid-column: 2;
+        grid-row: 1;
+        position: sticky;
+        top: 1em;
+        display: flex;
+        flex-direction: column;
+        max-height: calc(100vh - 2em);
+        overflow-y: auto;
+      }
+      /* El gráfico conserva su tamaño y las estadísticas hacen scroll dentro de la columna */
+      .chartcol.visible .step:first-child { flex-shrink: 0; }
+      .chartcol.visible .step:last-child {
+        min-height: 0;
+        overflow-y: auto;
+      }
+      #chart { height: calc(100vh - 330px); min-height: 280px; }
+    }
+    /* Panel flotante con el gráfico cuando su sección no está a la vista */
+    #chartFloat {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 46vh;
+      padding: .6em;
+      background: var(--card);
+      border-top: 1px solid var(--border);
+      box-shadow: 0 -4px 24px rgba(15, 23, 42, .25);
+      z-index: 100;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+    #chartFloatInner { width: 100%; height: 100%; }
+    /* Resaltado al arrastrar un archivo sobre la página (drag & drop) */
+    #dropOverlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      background: rgba(37, 99, 235, .12);
+      border: 5px dashed var(--primary);
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6em;
+      font-weight: 600;
+      color: var(--primary-dark);
+      pointer-events: none;
+    }
+    body.dragging #dropOverlay { display: flex; }
+    /* Espacio para que el panel flotante no tape las últimas opciones */
+    body.float-open main { padding-bottom: calc(32vh + 1em); }
+    @media (max-width: 640px) {
+      .category label { min-width: 100%; }
+      main { padding: 2em .6em 1em; }
+    }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="header-actions">
+        <button id="themeToggle" type="button" aria-label="Cambiar tema / Toggle theme">🌙</button>
+        <button id="langToggle" type="button" aria-label="Cambiar idioma / Change language">English</button>
+      </div>
+      <div class="badge">CSV · TSV · JSON</div>
+      <h1 data-i18n="h1">RS1 Gráficos</h1>
+      <h2 data-i18n="subtitle">Crea gráficos fácilmente desde archivos CSV/TSV y JSON</h2>
+    </header>
+    <main>
+      <div class="chartcol">
+      <div class="step" id="chartStep">
+        <h3><span class="num">📊</span> <span data-i18n="chart">Gráfico</span></h3>
+        <div id="chart"></div>
+      </div>
+      <div class="step">
+        <h3><span class="num">Σ</span> <span data-i18n="stats">Estadísticas</span></h3>
+        <div id="stats"></div>
+      </div>
+      </div>
+      <div class="formcol">
+      <div class="step">
+        <h3><span class="num">1</span> <span data-i18n="step1">Carga un archivo</span></h3>
+        <div class="grid">
+          <div class="category full">
+            <label for="file" data-i18n="dataFile">Archivo de datos:</label>
+            <input type="file" id="file" autocomplete="off"/>
+            <label class="btnfile" for="file">📁 <span data-i18n="chooseFile">Elegir archivo</span></label>
+            <span id="fileName" data-i18n="noFile">Ningún archivo seleccionado</span>
+            <span data-i18n="hintAuto">(El gráfico se genera automáticamente al cargar el archivo o cambiar opciones. El archivo se procesa en el navegador, en ningún momento sale de tu dispositivo)</span>
+          </div>
+          <div class="category">
+            <label for="fileType" data-i18n="fileTypeLabel">Tipo de archivo:</label>
+            <select id="fileType" name="fileType" autocomplete="off">
+              <option value="csv">CSV/TSV</option>
+              <option value="json">JSON</option>
+            </select>
+            <span data-i18n="hintFileType">(Selecciona entre <code>CSV/TSV</code> y <code>JSON</code>)</span>
+          </div>
+          <div class="category">
+            <label for="sep" data-i18n="sepLabel">Separación de campos:</label>
+            <input id="sep" name="sep" style="width: 60px" placeholder="," autocomplete="off"/>
+            <span data-i18n="hintSep">(Por ejemplo: <code>,</code>, <code>;</code>, <code>\t</code>)</span>
+          </div>
+          <div class="category">
+            <label for="includeHeader" data-i18n="headerLabel">Incluye cabecera:</label>
+            <input type="checkbox" id="includeHeader" name="includeHeader" checked autocomplete="off"/>
+            <span data-i18n="hintHeader">(CSV/TSV: Selecciona si los datos incluyen nombres de columnas)</span>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <h3><span class="num">2</span> <span data-i18n="step2">Modifica datos de entrada</span></h3>
+        <div class="grid">
+          <div class="category">
+            <label for="columnNames" data-i18n="colNamesLabel">Añadir/Cambiar nombres de columnas:</label>
+            <input id="columnNames" name="columnNames" placeholder="a,b" style="width: 120px" autocomplete="off"/>
+            <span data-i18n="hintColNames">(Puedes añadir nombres de columnas si los datos no los tienen, o modificar los existentes. Utiliza la coma <code>,</code> como separación entre columnas)</span>
+          </div>
+          <div class="category">
+            <label for="reverseData" data-i18n="reverseLabel">Invertir orden:</label>
+            <input type="checkbox" id="reverseData" name="reverseData" autocomplete="off"/>
+            <span data-i18n="hintReverse">(Invierte el orden de las filas de los datos de origen)</span>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <h3><span class="num">3</span> <span data-i18n="step3">Configura el gráfico</span></h3>
+        <div class="grid">
+          <div class="category">
+            <label for="chartTitle" data-i18n="titleLabel">Título:</label>
+            <input type="text" id="chartTitle" data-i18n-placeholder="titlePlaceholder" placeholder="Mi gráfico" autocomplete="off" style="width: 140px"/>
+            <span data-i18n="hintTitle">(Añade un título para el gráfico. Por defecto se utiliza el nombre del archivo)</span>
+          </div>
+          <div class="category">
+            <label for="chartType" data-i18n="chartTypeLabel">Tipo de gráfico:</label>
+            <select id="chartType" name="chartType" autocomplete="off">
+              <option value="line" data-i18n="optLine">Línea</option>
+              <option value="bar" data-i18n="optBar">Barras</option>
+              <option value="scatter" data-i18n="optScatter">Puntos</option>
+              <option value="pie" data-i18n="optPie">Tarta</option>
+            </select>
+            <span data-i18n="hintChartType">(Selecciona entre gráfico de <code>líneas</code>, <code>barras</code>, <code>puntos</code> o tipo <code>tarta</code>)</span>
+          </div>
+          <div class="category">
+            <label for="area" data-i18n="areaLabel">Área:</label>
+            <input type="checkbox" id="area" autocomplete="off"/>
+            <span data-i18n="hintArea">(Sólo para gráficos de líneas: convierte líneas en áreas)</span>
+          </div>
+          <div class="category">
+            <label for="smooth" data-i18n="smoothLabel">Suavizar línea:</label>
+            <input type="checkbox" id="smooth" autocomplete="off"/>
+            <span data-i18n="hintSmooth">(Sólo para gráficos de líneas: suaviza las líneas)</span>
+          </div>
+          <div class="category">
+            <label data-i18n="columnsLabel">Columnas:</label>
+            <input type="number" id="xIndex" placeholder="X" style="width: 60px" autocomplete="off"/>
+            <input type="number" id="yIndex" placeholder="Y" style="width: 60px" autocomplete="off"/>
+            <span data-i18n="hintColumns">(Indica qué columna utilizar para el eje X y el eje Y. Por defecto se utiliza la primera, n.º 0, como X y el resto como Y)</span>
+          </div>
+          <div class="category">
+            <label for="xType" data-i18n="xTypeLabel">Tipo X:</label>
+            <select id="xType" name="xType" autocomplete="off">
+              <option value="category" data-i18n="optCategory">Categoría</option>
+              <option value="value" data-i18n="optValue">Numérico</option>
+              <option value="time" data-i18n="optTime">Tiempo</option>
+              <option value="log">Log</option>
+            </select>
+            <span data-i18n="hintXType">(Indica qué tipo de datos hay en el eje X: <code>categoría</code>, <code>numérico</code>, de <code>tiempo</code>, o tipo <code>log</code>)</span>
+          </div>
+          <div class="category">
+            <label data-i18n="minMaxYLabel">Mín/Máx Y:</label>
+            <input type="number" id="yMin" placeholder="min" style="width: 60px" autocomplete="off"/>
+            <input type="number" id="yMax" placeholder="max" style="width: 60px" autocomplete="off"/>
+            <span data-i18n="hintMinMax">(Especifica un mínimo y/o máximo para el eje Y. Por defecto se utilizan el mínimo y máximo de los datos de origen)</span>
+          </div>
+          <div class="category">
+            <label for="showAvg" data-i18n="avgLabel">Media:</label>
+            <input type="checkbox" id="showAvg" name="showAvg" autocomplete="off"/>
+            <span data-i18n="hintAvg">(Calcula la media de los datos del eje Y y la muestra en el gráfico y en el apartado de estadísticas)</span>
+          </div>
+          <div class="category">
+            <label for="showMin" data-i18n="minLabel">Mínimo:</label>
+            <input type="checkbox" id="showMin" name="showMin" autocomplete="off"/>
+            <span data-i18n="hintMin">(Calcula el mínimo de los datos del eje Y y lo muestra en el gráfico y en el apartado de estadísticas)</span>
+          </div>
+          <div class="category">
+            <label for="showMax" data-i18n="maxLabel">Máximo:</label>
+            <input type="checkbox" id="showMax" name="showMax" autocomplete="off"/>
+            <span data-i18n="hintMax">(Calcula el máximo de los datos del eje Y y lo muestra en el gráfico y en el apartado de estadísticas)</span>
+          </div>
+          <div class="category">
+            <label for="showMedian" data-i18n="medianLabel">Mediana:</label>
+            <input type="checkbox" id="showMedian" name="showMedian" autocomplete="off"/>
+            <span data-i18n="hintMedian">(Calcula la mediana de los datos del eje Y y la muestra en el apartado de estadísticas)</span>
+          </div>
+          <div class="category">
+            <label for="showDev" data-i18n="devLabel">Desviación:</label>
+            <input type="checkbox" id="showDev" name="showDev" autocomplete="off"/>
+            <span data-i18n="hintDev">(Calcula la desviación de los datos del eje Y y la muestra en el apartado de estadísticas)</span>
+          </div>
+          <div class="category">
+            <label for="calcDiffCheck" data-i18n="diffLabel">Calcular diferencias:</label>
+            <input type="checkbox" id="calcDiffCheck" name="calcDiffCheck" autocomplete="off"/>
+            <span data-i18n="hintDiff">(Calcula la diferencia entre un dato y el anterior y la muestra en el gráfico)</span>
+          </div>
+          <div class="category">
+            <label for="histogram" data-i18n="histLabel">Histograma:</label>
+            <input type="checkbox" id="histogram" name="histogram" autocomplete="off"/>
+            <span data-i18n="hintHist">(Muestra un histograma de los datos)</span>
+          </div>
+          <div class="category">
+            <label for="groupCheck" data-i18n="groupLabel">Agrupar:</label>
+            <input type="checkbox" id="groupCheck" name="groupCheck" autocomplete="off"/>
+            <select id="groupMethod" name="groupMethod" autocomplete="off">
+              <option value="sum" data-i18n="optSum">Suma</option>
+              <option value="count" data-i18n="optCount">Contar</option>
+              <option value="first" data-i18n="optFirst">Primero</option>
+              <option value="average" data-i18n="optAverage">Media</option>
+              <option value="q1">Q1</option>
+              <option value="q2" data-i18n="optQ2">Mediana</option>
+              <option value="q3">Q3</option>
+              <option value="min" data-i18n="optMin">Mínimo</option>
+              <option value="max" data-i18n="optMax">Máximo</option>
+            </select>
+            <span data-i18n="hintGroup">(Agrupa datos de la misma categoría, calcula la operación especificada y la muestra en el gráfico)</span>
+          </div>
+          <div class="category">
+            <label for="orderIndex" data-i18n="sortLabel">Ordenar:</label>
+            <input type="number" id="orderIndex" name="orderIndex" placeholder="0" style="width: 60px" autocomplete="off"/>
+            <select id="orderDir" name="orderDir">
+              <option value="desc" data-i18n="optDesc">Descendiente</option>
+              <option value="asc" data-i18n="optAsc">Ascendiente</option>
+            </select>
+            <span data-i18n="hintSort">(Ordena la columna indicada)</span>
+          </div>
+          <div class="category">
+            <label for="movAvg" data-i18n="movAvgLabel">Media móvil:</label>
+            <input type="checkbox" id="movAvg" autocomplete="off"/>
+            <input type="number" id="movAvgPeriod" name="movAvgPeriod" placeholder="per" style="width: 60px" autocomplete="off"/>
+            <span data-i18n="hintMovAvg">(Calcula la media móvil, con el período especificado. Por ejemplo, <code>3</code> para utilizar los 3 últimos datos)</span>
+          </div>
+          <div class="category">
+            <label data-i18n="modelLabel">Generar modelo:</label>
+            <input type="checkbox" id="regression" autocomplete="off"/>
+            <select id="regType" name="regType" autocomplete="off">
+              <option value="linear" data-i18n="optLinear">Lineal</option>
+              <option value="exponential" data-i18n="optExponential">Exponencial</option>
+              <option value="logarithmic" data-i18n="optLogarithmic">Logarítmico</option>
+              <option value="polynomial" data-i18n="optPolynomial">Polinómico</option>
+            </select>
+            <span data-i18n="hintModel">(Genera un modelo <code>lineal</code>, <code>exponencial</code>, <code>logarítmico</code> o <code>polinómico</code> con los datos y lo muestra en el gráfico)</span>
+          </div>
+        </div>
+      </div>
+      </div>
+    </main>
+    <footer>
+      <h4 data-i18n="footerTitle">RS1 Gráficos</h4>
+      <p data-i18n="footerAI">Página creada con ayuda de la inteligencia artificial</p>
+      <p><span data-i18n="footerEngine">Motor de gráficos:</span> <a href="https://echarts.apache.org/en/index.html">Apache ECharts</a></p>
+      <p><span data-i18n="footerContact">Contacto:</span> <a href="mailto:admin@rs1.es">admin@rs1.es</a></p>
+    </footer>
+    <div id="chartFloat" hidden><div id="chartFloatInner"></div></div>
+    <div id="dropOverlay"><span data-i18n="dropHere">Suelta el archivo aquí para cargarlo</span></div>
+    <script src="ecStat.min.js"></script>
+    <script src="ecSimpleTransform.js"></script>
+    <script src="i18n.js?v=1.0"></script>
+    <script src="app.js?v=1.3"></script>
+  </body>
+</html>
