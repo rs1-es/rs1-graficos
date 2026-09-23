@@ -280,8 +280,8 @@
         });
     }
     var lineCreator = {
-        'SUM': function (upstream, dataIndex, dimInfo) {
-            return upstream.retrieveValue(dataIndex, dimInfo.indexInUpstream);
+        'SUM': function () {
+            return 0;
         },
         'COUNT': function () {
             return 1;
