@@ -246,7 +246,7 @@ const setLang = (lang) => {
   });
   document.title = I18N[lang].docTitle;
   document.querySelector('meta[name="description"]').setAttribute('content', I18N[lang].metaDescription);
-  document.getElementById('langToggle').textContent = (lang === 'es') ? 'English' : 'Español';
+  document.getElementById('langToggle').textContent = (lang === 'es') ? 'EN' : 'ES';
   localStorage.setItem('lang', lang);
 };
 
