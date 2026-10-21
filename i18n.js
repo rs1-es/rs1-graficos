@@ -35,25 +35,25 @@ const I18N = {
     optPie: 'Tarta',
     hintChartType: '(Selecciona entre gráfico de <code>líneas</code>, <code>barras</code>, <code>puntos</code> o tipo <code>tarta</code>)',
     areaLabel: 'Área:',
-    hintArea: '(Sólo para gráficos de líneas: convierte líneas en áreas)',
+    hintArea: '(Solo para gráficos de líneas: convierte líneas en áreas)',
     smoothLabel: 'Suavizar línea:',
-    hintSmooth: '(Sólo para gráficos de líneas: suaviza las líneas)',
+    hintSmooth: '(Solo para gráficos de líneas: suaviza las líneas)',
     stepLabel: 'Escalonar línea:',
-    hintStep: '(Sólo para gráficos de líneas: convierte las líneas en escalones, útil para mostrar cambios discretos)',
+    hintStep: '(Solo para gráficos de líneas: convierte las líneas en escalones, útil para mostrar cambios discretos)',
     stackLabel: 'Barras apiladas:',
-    hintStack: '(Sólo para gráficos de barras con varias columnas Y: apila las series o las normaliza para que sumen 100%)',
+    hintStack: '(Solo para gráficos de barras con varias columnas Y: apila las series o las normaliza para que sumen 100%)',
     optBarNormal: 'No',
     optBarStacked: 'Sí',
     optBarPercent: 'Sí, 100%',
     zLabel: 'Tamaño (Z):',
-    hintZ: '(Sólo para gráficos de puntos: utiliza la columna indicada para dimensionar los puntos; se escala automáticamente entre el mínimo y el máximo de la columna)',
+    hintZ: '(Solo para gráficos de puntos: utiliza la columna indicada para dimensionar los puntos; se escala automáticamente entre el mínimo y el máximo de la columna)',
     columnsLabel: 'Columnas:',
     hintColumns: '(Indica qué columna utilizar para el eje X y el eje Y. Por defecto se utiliza la primera, n.º 0, como X y el resto como Y)',
     xTypeLabel: 'Tipo X:',
     optCategory: 'Categoría',
     optValue: 'Numérico',
     optTime: 'Tiempo',
-    hintXType: '(Indica qué tipo de datos hay en el eje X: <code>categoría</code>, <code>numérico</code>, de <code>tiempo</code>, o tipo <code>log</code>)',
+    hintXType: '(Indica el tipo de datos del eje X: <code>categoría</code>, <code>numérico</code>, <code>tiempo</code> o <code>log</code>)',
     minMaxYLabel: 'Mín/Máx Y:',
     hintMinMax: '(Especifica un mínimo y/o máximo para el eje Y. Por defecto se utilizan el mínimo y máximo de los datos de origen)',
     avgLabel: 'Media:',
@@ -64,8 +64,8 @@ const I18N = {
     hintMax: '(Calcula el máximo de los datos del eje Y y lo muestra en el gráfico y en el apartado de estadísticas)',
     medianLabel: 'Mediana:',
     hintMedian: '(Calcula la mediana de los datos del eje Y y la muestra en el apartado de estadísticas)',
-    devLabel: 'Desviación:',
-    hintDev: '(Calcula la desviación de los datos del eje Y y la muestra en el apartado de estadísticas)',
+    devLabel: 'Desviación típica:',
+    hintDev: '(Calcula la desviación típica muestral de los datos del eje Y y la muestra en el apartado de estadísticas)',
     diffLabel: 'Calcular diferencias:',
     hintDiff: '(Calcula la diferencia entre un dato y el anterior y la muestra en el gráfico)',
     histLabel: 'Histograma:',
@@ -80,8 +80,8 @@ const I18N = {
     optMax: 'Máximo',
     hintGroup: '(Agrupa datos de la misma categoría, calcula la operación especificada y la muestra en el gráfico)',
     sortLabel: 'Ordenar:',
-    optDesc: 'Descendiente',
-    optAsc: 'Ascendiente',
+    optDesc: 'Descendente',
+    optAsc: 'Ascendente',
     hintSort: '(Ordena la columna indicada)',
     movAvgLabel: 'Media móvil:',
     hintMovAvg: '(Calcula la media móvil, con el período especificado. Por ejemplo, <code>3</code> para utilizar los 3 últimos datos)',
@@ -109,10 +109,26 @@ const I18N = {
     statMin: 'Mínimo',
     statMax: 'Máximo',
     statMedian: 'Mediana',
-    statDev: 'Desviación',
+    statDev: 'Desviación típica',
     statAvg: 'Media',
     darkMode: 'Modo oscuro',
-    lightMode: 'Modo claro'
+    lightMode: 'Modo claro',
+    tbSave: 'Guardar como imagen',
+    tbData: 'Ver datos',
+    tbZoom: 'Zoom (selección)',
+    tbZoomReset: 'Restablecer zoom',
+    warnRegX: 'El modelo necesita un eje X de tipo numérico o tiempo',
+    badColumn: 'El índice de columna indicado no existe en los datos',
+    grpChart: 'Tipo y aspecto',
+    grpAxes: 'Columnas y ejes',
+    grpStats: 'Estadísticas',
+    grpTransform: 'Transformaciones',
+    ariaYCol: 'Columna Y',
+    ariaYMax: 'Máximo del eje Y',
+    ariaGroupOp: 'Operación de agrupación',
+    ariaOrderDir: 'Dirección del orden',
+    ariaPeriod: 'Período',
+    ariaModelType: 'Tipo de modelo'
   },
   en: {
     docTitle: 'RS1 Charts',
@@ -178,8 +194,8 @@ const I18N = {
     hintMax: '(Calculates the maximum of the Y axis data and shows it in the chart and in the statistics section)',
     medianLabel: 'Median:',
     hintMedian: '(Calculates the median of the Y axis data and shows it in the statistics section)',
-    devLabel: 'Deviation:',
-    hintDev: '(Calculates the deviation of the Y axis data and shows it in the statistics section)',
+    devLabel: 'Standard deviation:',
+    hintDev: '(Calculates the sample standard deviation of the Y axis data and shows it in the statistics section)',
     diffLabel: 'Calculate differences:',
     hintDiff: '(Calculates the difference between each value and the previous one and shows it in the chart)',
     histLabel: 'Histogram:',
@@ -223,39 +239,73 @@ const I18N = {
     statMin: 'Minimum',
     statMax: 'Maximum',
     statMedian: 'Median',
-    statDev: 'Deviation',
+    statDev: 'Standard deviation',
     statAvg: 'Average',
     darkMode: 'Dark mode',
-    lightMode: 'Light mode'
+    lightMode: 'Light mode',
+    tbSave: 'Save as image',
+    tbData: 'View data',
+    tbZoom: 'Zoom (selection)',
+    tbZoomReset: 'Reset zoom',
+    warnRegX: 'The model needs a numeric or time X axis',
+    badColumn: 'The given column index does not exist in the data',
+    grpChart: 'Type and appearance',
+    grpAxes: 'Columns and axes',
+    grpStats: 'Statistics',
+    grpTransform: 'Transformations',
+    ariaYCol: 'Y column',
+    ariaYMax: 'Y axis maximum',
+    ariaGroupOp: 'Grouping operation',
+    ariaOrderDir: 'Sort direction',
+    ariaPeriod: 'Period',
+    ariaModelType: 'Model type'
   }
 };
 
-let i18nLang = localStorage.getItem('lang') || 'es';
+// Acceso seguro a localStorage (puede lanzar excepciones en modo privado o con
+// el almacenamiento bloqueado)
+const store = {
+  get: (key) => {
+    try { return localStorage.getItem(key); } catch (e) { return null; }
+  },
+  set: (key, value) => {
+    try { localStorage.setItem(key, value); } catch (e) { /* sin persistencia */ }
+  }
+};
+
+const defaultLang = () => ((navigator.language || 'es').toLowerCase().startsWith('en') ? 'en' : 'es');
+const savedLang = store.get('lang');
+let i18nLang = I18N[savedLang] ? savedLang : defaultLang();
+
+// Traducción con respaldo: idioma actual -> español -> la propia clave
+const tr = (lang, key) => (I18N[lang] && I18N[lang][key]) ?? I18N.es[key] ?? key;
 
 // Función de traducción para los textos generados dinámicamente (usada en app.js)
-const t = (key) => I18N[i18nLang][key];
+const t = (key) => tr(i18nLang, key);
 
 const setLang = (lang) => {
   i18nLang = lang;
   document.documentElement.lang = lang;
   document.querySelectorAll('[data-i18n]').forEach((el) => {
-    el.innerHTML = I18N[lang][el.dataset.i18n];
+    el.innerHTML = tr(lang, el.dataset.i18n);
   });
   document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
-    el.placeholder = I18N[lang][el.dataset.i18nPlaceholder];
+    el.placeholder = tr(lang, el.dataset.i18nPlaceholder);
   });
-  document.title = I18N[lang].docTitle;
-  document.querySelector('meta[name="description"]').setAttribute('content', I18N[lang].metaDescription);
+  document.querySelectorAll('[data-i18n-aria]').forEach((el) => {
+    el.setAttribute('aria-label', tr(lang, el.dataset.i18nAria));
+  });
+  document.title = tr(lang, 'docTitle');
+  const meta = document.querySelector('meta[name="description"]');
+  if (meta) meta.setAttribute('content', tr(lang, 'metaDescription'));
   document.getElementById('langToggle').textContent = (lang === 'es') ? 'EN' : 'ES';
-  localStorage.setItem('lang', lang);
+  store.set('lang', lang);
 };
 
 document.getElementById('langToggle').addEventListener('click', () => {
   setLang((i18nLang === 'es') ? 'en' : 'es');
-  // Regenerar el gráfico para actualizar nombres de series, estadísticas, etc.
-  if (typeof fileText !== 'undefined' && fileText !== null && typeof scheduleRender === 'function') {
-    scheduleRender();
-  }
+  // app.js escucha este evento (nombres de series, estadísticas, nombre de archivo...)
+  document.dispatchEvent(new CustomEvent('app:langchange', { detail: { lang: i18nLang } }));
 });
 
 setLang(i18nLang);
@@ -263,8 +313,8 @@ setLang(i18nLang);
 // Tema claro/oscuro
 const setTheme = (theme) => {
   document.documentElement.dataset.theme = theme;
-  localStorage.setItem('theme', theme);
-  let themeToggle = document.getElementById('themeToggle');
+  store.set('theme', theme);
+  const themeToggle = document.getElementById('themeToggle');
   // El icono muestra el modo al que se cambiará; el texto descriptivo va en aria-label/title
   themeToggle.textContent = (theme === 'dark') ? '☀️' : '🌙';
   themeToggle.setAttribute('aria-label', (theme === 'dark') ? t('lightMode') : t('darkMode'));
@@ -273,10 +323,8 @@ const setTheme = (theme) => {
 
 document.getElementById('themeToggle').addEventListener('click', () => {
   setTheme((document.documentElement.dataset.theme === 'dark') ? 'light' : 'dark');
-  // Reinicializar ECharts y redibujar con los colores del nuevo tema
-  if (typeof refreshTheme === 'function') {
-    refreshTheme();
-  }
+  // app.js reinicializa ECharts y redibuja con los colores del nuevo tema
+  document.dispatchEvent(new CustomEvent('app:themechange'));
 });
 
 setTheme(document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light');
