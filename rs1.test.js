@@ -122,4 +122,10 @@ ok('Z de puntos usa la columna original indicada', () => {
   assert.strictEqual(r.option.dataset[0].source[0].length, 3);
   assert.strictEqual(r.option.series[0].symbolSize([1, 2, 8]), 30);
 });
+ok('líneas: sin símbolos por defecto; con la opción, círculos; puntos siempre', () => {
+  assert.ok(run(csv, {}).option.series.every((s) => s.symbol === 'none'));
+  assert.ok(run(csv, { symbols: true }).option.series.every((s) => s.symbol === 'circle'));
+  assert.ok(run(csv, { chartType: 'scatter', xType: 'value' }).option.series.every((s) => s.symbol === 'circle'));
+  assert.ok(run(csv, { symbols: true, movAvg: 2 }).option.series.filter((s) => /movAvgSeries/.test(s.name)).every((s) => s.symbol === 'none'));
+});
 console.log(`\n${n} pruebas OK`);

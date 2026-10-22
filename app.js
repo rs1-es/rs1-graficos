@@ -10,9 +10,9 @@
 
   const IDS = [
     'file', 'fileName', 'fileType', 'sep', 'includeHeader', 'columnNames', 'reverseData',
-    'chartTitle', 'chartType', 'area', 'smooth', 'step', 'barStack', 'xIndex', 'yIndex', 'zIndex',
+    'chartTitle', 'chartType', 'area', 'smooth', 'step', 'symbols', 'barStack', 'xIndex', 'yIndex', 'zIndex',
     'xType', 'yMin', 'yMax', 'showAvg', 'showMin', 'showMax', 'showMedian', 'showDev',
-    'calcDiffCheck', 'histogram', 'groupCheck', 'groupMethod', 'orderIndex', 'orderDir',
+    'calcDiffCheck', 'histogram', 'groupCheck', 'groupMethod', 'sortCheck', 'orderIndex', 'orderDir',
     'movAvg', 'movAvgPeriod', 'regression', 'regType',
     'chart', 'stats', 'chartStep', 'chartFloat', 'chartFloatInner'
   ];
@@ -54,6 +54,7 @@
     area: ui.area.checked,
     smooth: ui.smooth.checked,
     step: ui.step.checked,
+    symbols: ui.symbols.checked,
     barStack: ui.barStack.value,
     xIndex: intOrNull(ui.xIndex),
     yIndex: intOrNull(ui.yIndex),
@@ -70,7 +71,7 @@
     histogram: ui.histogram.checked,
     group: ui.groupCheck.checked,
     groupMethod: ui.groupMethod.value,
-    orderIndex: intOrNull(ui.orderIndex),
+    orderIndex: ui.sortCheck.checked ? (intOrNull(ui.orderIndex) ?? 0) : null,
     orderDir: ui.orderDir.value,
     movAvg: ui.movAvg.checked ? (intOrNull(ui.movAvgPeriod) || 3) : null,
     regression: ui.regression.checked,
@@ -114,8 +115,11 @@
       });
     // Punto indicador en las secciones plegadas que tienen opciones activas
     document.querySelectorAll('details.group').forEach((g) => {
-      const active = Array.from(g.querySelectorAll('input')).some((el) =>
-        (el.type === 'checkbox') ? el.checked : (el.value.trim() !== ''));
+      const active = Array.from(g.querySelectorAll('input')).some((el) => {
+        if (el.type === 'checkbox') return el.checked;
+        // Un campo suelto cuenta si tiene valor; los parámetros de una fila con interruptor dependen de él
+        return !el.closest('.category').querySelector('input[type="checkbox"]') && el.value.trim() !== '';
+      });
       g.classList.toggle('has-active', active);
     });
   };
@@ -305,6 +309,9 @@
   ['input', 'change'].forEach((evt) => {
     main.addEventListener(evt, (e) => {
       if (e.target === ui.file) return;
+      // Tocar un parámetro (columna, dirección) activa el interruptor de su opción
+      const switchId = e.target.dataset && e.target.dataset.enables;
+      if (switchId && !ui[switchId].checked) ui[switchId].checked = true;
       syncOptionStates();
       scheduleRender();
     });

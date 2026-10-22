@@ -119,8 +119,8 @@
         Object.assign(s, {
           encode: { x: 0, y: 1 },
           yAxisIndex: sepAxes ? j : 0,
-          symbol: 'circle',
-          showSymbol: isScatter || st.rows.length <= 50,
+          // Líneas: sin símbolos salvo que se active la opción; puntos: siempre
+          symbol: (isScatter || (isLine && cfg.symbols)) ? 'circle' : 'none',
           symbolSize: 4
         });
         if (isLine) {

@@ -124,6 +124,11 @@
                 <span class="hint" id="hintStep" data-i18n="hintStep">(Sólo para gráficos de líneas: convierte las líneas en escalones, útil para mostrar cambios discretos)</span>
               </div>
           </div>
+          <div class="category" data-only="line">
+            <label for="symbols" data-i18n="symbolsLabel">Símbolos:</label>
+            <input aria-describedby="hintSymbols" type="checkbox" role="switch" id="symbols" autocomplete="off"/>
+            <span class="hint" id="hintSymbols" data-i18n="hintSymbols">(Solo para gráficos de líneas: muestra un punto en cada valor)</span>
+          </div>
         </details>
         <details class="group" open>
           <summary data-i18n="grpAxes">Columnas y ejes</summary>
@@ -217,9 +222,10 @@
                 <span class="hint" id="hintGroup" data-i18n="hintGroup">(Agrupa datos de la misma categoría, calcula la operación especificada y la muestra en el gráfico)</span>
               </div>
               <div class="category">
-                <label for="orderIndex" data-i18n="sortLabel">Ordenar:</label>
-                <input aria-describedby="hintSort" type="number" id="orderIndex" name="orderIndex" placeholder="0" class="w60" autocomplete="off"/>
-                <select id="orderDir" data-i18n-aria="ariaOrderDir" name="orderDir">
+                <label for="sortCheck" data-i18n="sortLabel">Ordenar:</label>
+                <input aria-describedby="hintSort" type="checkbox" role="switch" id="sortCheck" autocomplete="off"/>
+                <input type="number" id="orderIndex" data-enables="sortCheck" data-i18n-aria="ariaOrderCol" name="orderIndex" placeholder="0" class="w60" autocomplete="off"/>
+                <select id="orderDir" data-enables="sortCheck" data-i18n-aria="ariaOrderDir" name="orderDir">
                   <option value="desc" data-i18n="optDesc">Descendiente</option>
                   <option value="asc" data-i18n="optAsc">Ascendiente</option>
                 </select>
@@ -257,9 +263,9 @@
     <div id="dropOverlay" aria-hidden="true"><span data-i18n="dropHere">Suelta el archivo aquí para cargarlo</span></div>
     <script src="ecStat.min.js" defer></script>
     <script src="ecSimpleTransform.js" defer></script>
-    <script src="i18n.js?v=1" defer></script>
+    <script src="i18n.js?v=3" defer></script>
     <script src="rs1-data.js" defer></script>
     <script src="rs1-chart.js" defer></script>
-    <script src="app.js?v=1" defer></script>
+    <script src="app.js?v=3" defer></script>
   </body>
 </html>
