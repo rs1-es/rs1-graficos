@@ -20,7 +20,6 @@ FILES=(
   sitemap.xml
   favicon.png
   favicon.svg
-  sitemap.xml
 )
 
 echo "Comprobando archivos necesarios..."
@@ -44,9 +43,11 @@ fi
 
 echo "Subiendo archivos a $BUCKET ..."
 # La whitelist (exclude * + include) garantiza que no se sube nada que
-# la página no utilice (README, sitemap.xml, .git, etc.)
-aws s3 sync . "$BUCKET" \
-  --exclude '*' \
-  $(printf '  --include %q' "${FILES[@]}")
+# la página no utilice (README, pruebas, .git, etc.)
+INCLUDES=()
+for f in "${FILES[@]}"; do
+  INCLUDES+=(--include "$f")
+done
+aws s3 sync . "$BUCKET" --exclude '*' "${INCLUDES[@]}"
 
 echo "Despliegue completado."

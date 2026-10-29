@@ -19,5 +19,27 @@ En la carpeta raíz del proyecto:
 - "ecStat.min.js" (v1.2.0)
     - [https://github.com/ecomfe/echarts-stat/tree/master/dist]
     - Requerido para crear histogramas y generar modelos.
+
+Archivos propios del proyecto:
+- "index.html", "styles.css" y "theme-init.js"
+    - Página, estilos y tema claro/oscuro.
 - "app.js"
-    - Lógica de la aplicación: carga y proceso de datos, configuración del gráfico y estadísticas.
+    - Capa de UI: DOM, eventos, estadísticas e instancias de ECharts.
+- "rs1-data.js"
+    - Capa de datos (sin DOM): detección de formato, lectura de CSV/TSV/JSON y transformaciones.
+- "rs1-chart.js"
+    - Construye la opción de ECharts a partir de la tabla y la configuración.
+- "i18n.js"
+    - Traducciones ES/EN.
+
+## Pruebas
+
+Las capas de datos y de gráfico se prueban con Node, sin dependencias:
+
+```
+node rs1.test.js
+```
+
+## Despliegue
+
+`./deploy.sh` sube a S3 (`graficos.rs1.es`) solo los archivos necesarios; requiere AWS CLI.
