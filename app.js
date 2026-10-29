@@ -111,6 +111,10 @@
           (!d.filetype || d.filetype === fileType) &&
           (!d.offIf || !ui[d.offIf].checked);
         row.classList.toggle('is-disabled', !enabled);
+        // Se oculta si no aplica por tipo; si sólo depende de otra casilla (data-off-if) queda atenuada
+        const applies = (!d.only || words(d.only).includes(type)) &&
+          (!d.not || !words(d.not).includes(type)) && (!d.filetype || d.filetype === fileType);
+        row.classList.toggle('is-hidden', !applies);
         row.querySelectorAll('input, select').forEach((el) => { el.disabled = !enabled; });
       });
     // Punto indicador en las secciones plegadas que tienen opciones activas
@@ -121,8 +125,32 @@
         return !el.closest('.category').querySelector('input[type="checkbox"]') && el.value.trim() !== '';
       });
       g.classList.toggle('has-active', active);
+      // Una sección sin ninguna opción aplicable se oculta entera
+      g.hidden = !g.querySelector('.category:not(.is-hidden)');
     });
   };
+
+  // ---------- Ayudas bajo demanda ----------
+  // Cada fila con ayuda recibe un botón ? que la muestra u oculta (la del archivo siempre se ve)
+
+  const infoButtons = [];
+  document.querySelectorAll('.category:not(.full):not(.chip)').forEach((row) => {
+    const hint = row.querySelector('.hint');
+    if (!hint) return;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'info';
+    btn.textContent = '?';
+    btn.setAttribute('aria-controls', hint.id);
+    btn.setAttribute('aria-expanded', 'false');
+    btn.addEventListener('click', () => {
+      btn.setAttribute('aria-expanded', String(row.classList.toggle('hint-open')));
+    });
+    row.appendChild(btn);
+    infoButtons.push(btn);
+  });
+  const labelInfoButtons = () => infoButtons.forEach((b) => b.setAttribute('aria-label', t('moreInfo')));
+  labelInfoButtons();
 
   // ---------- Tema y formato ----------
 
@@ -403,6 +431,7 @@
     // setLang() reescribe #fileName con "Ningún archivo seleccionado": se restaura
     ui.fileName.textContent = state.fileName || t('noFile');
     ui.shareBtn.title = t('shareLink');
+    labelInfoButtons();
     if (state.text !== null) scheduleRender();
   });
   document.addEventListener('app:themechange', refreshTheme);

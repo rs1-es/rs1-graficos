@@ -158,11 +158,11 @@
       }));
       if (data.length === 0) throw D.fail('noData');
       const option = baseOption('item', {
-        grid: { containLabel: false, width: '65%', left: 'center', top: 40, bottom: 110 },
+        grid: { containLabel: false, width: '65%', left: 'center', top: 40, bottom: 130 },
         xAxis: { ...mkCategoryX(header[xi], xs), splitArea: { show: true } },
         yAxis: [{ type: 'category', data: names, axisLabel: { color: colors.soft }, axisLine: { lineStyle: { color: colors.soft } }, splitArea: { show: true } }],
         visualMap: {
-          min: lo, max: hi, calculable: true, orient: 'horizontal', left: 'center', bottom: 10,
+          min: lo, max: hi, calculable: true, orient: 'horizontal', left: 'center', bottom: 0,
           textStyle: { color: colors.fg }, inRange: { color: ['#dbeafe', '#3b82f6', '#1e3a8a'] }
         },
         series: [{ type: 'heatmap', name: ctx.title, data, label: { show: data.length <= 150, formatter: (p) => fmt(p.value[2]) } }]

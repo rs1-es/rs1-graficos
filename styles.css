@@ -133,7 +133,7 @@ main {
   gap: .4em 2.4em;
 }
 .category {
-  padding: .7em 0;
+  padding: .45em 0;
   border-bottom: 1px dashed var(--border);
   display: flex;
   flex-wrap: wrap;
@@ -144,9 +144,10 @@ main {
 .category label {
   font-weight: 600;
   font-size: .92em;
-  min-width: 175px;
+  min-width: 150px;
 }
 .hint {
+  display: none;
   font-style: normal;
   font-size: .82em;
   color: var(--text-soft);
@@ -333,6 +334,8 @@ input[type="checkbox"]:focus-visible {
 }
 /* Opciones que no aplican al tipo de gráfico/archivo actual */
 .category.is-disabled { opacity: .45; }
+/* Las opciones que no aplican al tipo de gráfico o de archivo se ocultan del todo */
+.category.is-hidden { display: none; }
 .category.is-disabled label { cursor: not-allowed; }
 input:disabled, select:disabled { cursor: not-allowed; }
 /* Secciones plegables del paso 3 */
@@ -367,3 +370,31 @@ input:disabled, select:disabled { cursor: not-allowed; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }
+
+/* Ayudas bajo demanda: el botón ? las muestra; la del archivo (.full) siempre se ve */
+.category.hint-open .hint,
+.category.full .hint { display: block; }
+.category:has(> .info) { position: relative; padding-right: 32px; }
+.category .info {
+  position: absolute;
+  right: 4px;
+  top: .5em;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-soft);
+  font: inherit;
+  font-size: .8em;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+.category .info:hover, .category.hint-open .info { color: var(--primary); border-color: var(--primary); }
+.category .info:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+/* Estadísticas: interruptores en una sola fila */
+.grid.chips { display: flex; flex-wrap: wrap; gap: .2em 1.6em; }
+.category.chip { border-bottom: 0; }
+.category.chip label { min-width: 0; }
