@@ -41,6 +41,12 @@ if ! command -v aws >/dev/null 2>&1; then
   exit 1
 fi
 
+# Las librerías de terceros no deben cambiar sin querer (ver README para actualizarlas)
+if ! sha256sum --quiet -c vendor.sha256; then
+  echo "ERROR: Las librerías vendorizadas no coinciden con vendor.sha256." >&2
+  exit 1
+fi
+
 if ! command -v node >/dev/null 2>&1; then
   echo "ERROR: El comando 'node' no está disponible (necesario para las pruebas)." >&2
   exit 1

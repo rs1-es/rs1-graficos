@@ -20,6 +20,12 @@ En la carpeta raíz del proyecto:
     - [https://github.com/ecomfe/echarts-stat/tree/master/dist]
     - Requerido para crear histogramas y generar modelos.
 
+Al actualizar una librería, regenera sus sumas de verificación (las comprueba `deploy.sh`):
+
+```
+sha256sum echarts.min.js ecSimpleTransform.js ecStat.min.js > vendor.sha256
+```
+
 Archivos propios del proyecto:
 - "index.html", "styles.css" y "theme-init.js"
     - Página, estilos y tema claro/oscuro.
@@ -31,6 +37,10 @@ Archivos propios del proyecto:
     - Construye la opción de ECharts a partir de la tabla y la configuración.
 - "i18n.js"
     - Traducciones ES/EN.
+
+## Compartir configuración
+
+El botón 🔗 copia un enlace con los ajustes del gráfico en el hash de la URL (nunca los datos). Al abrirlo se restauran las opciones; el archivo hay que cargarlo de nuevo.
 
 ## Pruebas
 

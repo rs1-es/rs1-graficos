@@ -14,7 +14,7 @@
     'xType', 'yMin', 'yMax', 'showAvg', 'showMin', 'showMax', 'showMedian', 'showDev',
     'calcDiffCheck', 'histogram', 'groupCheck', 'groupMethod', 'sortCheck', 'orderIndex', 'orderDir',
     'movAvg', 'movAvgPeriod', 'regression', 'regType',
-    'chart', 'stats', 'chartStep', 'chartFloat', 'chartFloatInner'
+    'chart', 'stats', 'chartStep', 'chartFloat', 'chartFloatInner', 'shareBtn'
   ];
   const ui = Object.fromEntries(IDS.map((id) => [id, document.getElementById(id)]));
   const chartCol = document.querySelector('.chartcol');
@@ -313,8 +313,56 @@
       const switchId = e.target.dataset && e.target.dataset.enables;
       if (switchId && !ui[switchId].checked) ui[switchId].checked = true;
       syncOptionStates();
+      saveHash();
       scheduleRender();
     });
+  });
+
+  // ---------- Configuración en la URL ----------
+  // Sólo se guardan los ajustes que difieren de los valores iniciales; nunca los datos
+  const SHARE_IDS = IDS.filter((id) => !['file', 'fileName', 'fileType', 'chart', 'stats', 'chartStep',
+    'chartFloat', 'chartFloatInner', 'shareBtn'].includes(id));
+  const valueOf = (el) => (el.type === 'checkbox' ? (el.checked ? '1' : '0') : el.value);
+  const defaults = Object.fromEntries(SHARE_IDS.map((id) => [id, valueOf(ui[id])]));
+
+  const saveHash = () => {
+    const params = new URLSearchParams();
+    SHARE_IDS.forEach((id) => {
+      const v = valueOf(ui[id]);
+      if (v !== defaults[id]) params.set(id, v);
+    });
+    const hash = params.toString();
+    history.replaceState(null, '', location.pathname + location.search + (hash ? '#' + hash : ''));
+  };
+
+  const applyHash = () => {
+    const params = new URLSearchParams(location.hash.slice(1));
+    SHARE_IDS.forEach((id) => {
+      if (!params.has(id)) return;
+      const el = ui[id];
+      const v = params.get(id);
+      if (el.type === 'checkbox') {
+        el.checked = v === '1';
+      } else if (el.tagName !== 'SELECT' || Array.from(el.options).some((o) => o.value === v)) {
+        el.value = v;
+      }
+    });
+  };
+
+  ui.shareBtn.addEventListener('click', async () => {
+    saveHash();
+    try {
+      await navigator.clipboard.writeText(location.href);
+    } catch (e) {
+      return;
+    }
+    const icon = ui.shareBtn.textContent;
+    ui.shareBtn.textContent = '✓';
+    ui.shareBtn.title = t('shareCopied');
+    setTimeout(() => {
+      ui.shareBtn.textContent = icon;
+      ui.shareBtn.title = t('shareLink');
+    }, 1500);
   });
 
   // ---------- Arrastrar y soltar (sólo para archivos) ----------
@@ -354,6 +402,7 @@
   document.addEventListener('app:langchange', () => {
     // setLang() reescribe #fileName con "Ningún archivo seleccionado": se restaura
     ui.fileName.textContent = state.fileName || t('noFile');
+    ui.shareBtn.title = t('shareLink');
     if (state.text !== null) scheduleRender();
   });
   document.addEventListener('app:themechange', refreshTheme);
@@ -362,5 +411,7 @@
 
   registerTransforms();
   initCharts();
+  applyHash();
   syncOptionStates();
+  ui.shareBtn.title = t('shareLink');
 })();
