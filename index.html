@@ -102,17 +102,19 @@
                   <option value="bar" data-i18n="optBar">Barras</option>
                   <option value="scatter" data-i18n="optScatter">Puntos</option>
                   <option value="pie" data-i18n="optPie">Tarta</option>
+                  <option value="boxplot" data-i18n="optBox">Caja y bigotes</option>
+                  <option value="heatmap" data-i18n="optHeat">Mapa de calor</option>
                 </select>
-                <span class="hint" id="hintChartType" data-i18n="hintChartType">(Selecciona entre gráfico de <code>líneas</code>, <code>barras</code>, <code>puntos</code> o tipo <code>tarta</code>)</span>
+                <span class="hint" id="hintChartType" data-i18n="hintChartType">(Selecciona entre gráfico de <code>líneas</code>, <code>barras</code>, <code>puntos</code>, <code>tarta</code>, <code>caja y bigotes</code> o <code>mapa de calor</code>)</span>
               </div>
-              <div class="category" data-only="bar">
-                <label for="barStack" data-i18n="stackLabel">Barras apiladas:</label>
+              <div class="category" data-only="bar line">
+                <label for="barStack" data-i18n="stackLabel">Apilar series:</label>
                 <select aria-describedby="hintStack" id="barStack" name="barStack" autocomplete="off">
                   <option value="normal" data-i18n="optBarNormal">No</option>
                   <option value="stacked" data-i18n="optBarStacked">Sí</option>
                   <option value="percent" data-i18n="optBarPercent">Sí, 100%</option>
                 </select>
-                <span class="hint" id="hintStack" data-i18n="hintStack">(Sólo para gráficos de barras con varias columnas Y: apila las series o las normaliza para que sumen 100%)</span>
+                <span class="hint" id="hintStack" data-i18n="hintStack">(Sólo para barras y líneas con varias columnas Y; con "Área" en líneas da áreas apiladas: apila las series o las normaliza para que sumen 100%)</span>
               </div>
               <div class="category" data-only="line">
                 <label for="area" data-i18n="areaLabel">Área:</label>
@@ -150,7 +152,7 @@
                 <input aria-describedby="hintZ" type="number" id="zIndex" placeholder="Z" class="w60" autocomplete="off"/>
                 <span class="hint" id="hintZ" data-i18n="hintZ">(Sólo para gráficos de puntos: utiliza la columna indicada para dimensionar los puntos; se escala automáticamente entre el mínimo y el máximo de la columna)</span>
               </div>
-              <div class="category" data-not="pie">
+              <div class="category" data-not="pie heatmap boxplot">
                 <label for="xType" data-i18n="xTypeLabel">Tipo X:</label>
                 <select aria-describedby="hintXType" id="xType" name="xType" autocomplete="off">
                   <option value="category" data-i18n="optCategory">Categoría</option>
@@ -160,7 +162,7 @@
                 </select>
                 <span class="hint" id="hintXType" data-i18n="hintXType">(Indica qué tipo de datos hay en el eje X: <code>categoría</code>, <code>numérico</code>, de <code>tiempo</code>, o tipo <code>log</code>)</span>
               </div>
-              <div class="category" data-not="pie">
+              <div class="category" data-not="pie heatmap">
                 <label for="yMin" data-i18n="minMaxYLabel">Mín/Máx Y:</label>
                 <input aria-describedby="hintMinMax" type="number" id="yMin" placeholder="min" class="w60" autocomplete="off"/>
                 <input type="number" id="yMax" data-i18n-aria="ariaYMax" placeholder="max" class="w60" autocomplete="off"/>
@@ -201,17 +203,17 @@
         <details class="group">
           <summary data-i18n="grpTransform">Transformaciones</summary>
           <div class="grid">
-              <div class="category">
+              <div class="category" data-not="heatmap boxplot">
                 <label for="calcDiffCheck" data-i18n="diffLabel">Calcular diferencias:</label>
                 <input aria-describedby="hintDiff" type="checkbox" role="switch" id="calcDiffCheck" name="calcDiffCheck" autocomplete="off"/>
                 <span class="hint" id="hintDiff" data-i18n="hintDiff">(Calcula la diferencia entre un dato y el anterior y la muestra en el gráfico)</span>
               </div>
-              <div class="category" data-not="pie">
+              <div class="category" data-not="pie heatmap boxplot">
                 <label for="histogram" data-i18n="histLabel">Histograma:</label>
                 <input aria-describedby="hintHist" type="checkbox" role="switch" id="histogram" name="histogram" autocomplete="off"/>
                 <span class="hint" id="hintHist" data-i18n="hintHist">(Muestra un histograma de los datos)</span>
               </div>
-              <div class="category">
+              <div class="category" data-not="heatmap boxplot">
                 <label for="groupCheck" data-i18n="groupLabel">Agrupar:</label>
                 <input aria-describedby="hintGroup" type="checkbox" role="switch" id="groupCheck" name="groupCheck" autocomplete="off"/>
                 <select id="groupMethod" data-i18n-aria="ariaGroupOp" name="groupMethod" autocomplete="off">
@@ -227,7 +229,7 @@
                 </select>
                 <span class="hint" id="hintGroup" data-i18n="hintGroup">(Agrupa datos de la misma categoría, calcula la operación especificada y la muestra en el gráfico)</span>
               </div>
-              <div class="category">
+              <div class="category" data-not="heatmap boxplot">
                 <label for="sortCheck" data-i18n="sortLabel">Ordenar:</label>
                 <input aria-describedby="hintSort" type="checkbox" role="switch" id="sortCheck" autocomplete="off"/>
                 <input type="number" id="orderIndex" data-enables="sortCheck" data-i18n-aria="ariaOrderCol" name="orderIndex" placeholder="0" class="w60" autocomplete="off"/>
@@ -237,13 +239,13 @@
                 </select>
                 <span class="hint" id="hintSort" data-i18n="hintSort">(Ordena la columna indicada)</span>
               </div>
-              <div class="category" data-not="pie">
+              <div class="category" data-not="pie heatmap boxplot">
                 <label for="movAvg" data-i18n="movAvgLabel">Media móvil:</label>
                 <input aria-describedby="hintMovAvg" type="checkbox" role="switch" id="movAvg" autocomplete="off"/>
                 <input type="number" id="movAvgPeriod" data-i18n-aria="ariaPeriod" name="movAvgPeriod" placeholder="per" class="w60" autocomplete="off"/>
                 <span class="hint" id="hintMovAvg" data-i18n="hintMovAvg">(Calcula la media móvil, con el período especificado. Por ejemplo, <code>3</code> para utilizar los 3 últimos datos)</span>
               </div>
-              <div class="category" data-not="pie" data-off-if="histogram">
+              <div class="category" data-not="pie heatmap boxplot" data-off-if="histogram">
                 <label for="regression" data-i18n="modelLabel">Generar modelo:</label>
                 <input aria-describedby="hintModel" type="checkbox" role="switch" id="regression" autocomplete="off"/>
                 <select id="regType" data-i18n-aria="ariaModelType" name="regType" autocomplete="off">

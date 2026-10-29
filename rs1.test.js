@@ -128,4 +128,36 @@ ok('líneas: sin símbolos por defecto; con la opción, círculos; puntos siempr
   assert.ok(run(csv, { chartType: 'scatter', xType: 'value' }).option.series.every((s) => s.symbol === 'circle'));
   assert.ok(run(csv, { symbols: true, movAvg: 2 }).option.series.filter((s) => /movAvgSeries/.test(s.name)).every((s) => s.symbol === 'none'));
 });
+ok('cuartiles y bigotes de Tukey con atípicos', () => {
+  const q = D.boxStats([1, 2, 3, 4, 5, 100]);
+  assert.strictEqual(q.median, 3.5);
+  assert.strictEqual(q.q1, 2.25);
+  assert.strictEqual(q.q3, 4.75);
+  assert.strictEqual(q.high, 5);
+  assert.deepStrictEqual(q.outliers, [100]);
+  assert.strictEqual(D.boxStats(['a', null]), null);
+});
+ok('líneas: el apilado y el área dan áreas apiladas', () => {
+  const r = run(csv, { barStack: 'stacked', area: true });
+  assert.ok(r.option.series.every((s) => s.stack === 'total' && s.areaStyle));
+});
+ok('caja y bigotes: una caja por columna Y y atípicos aparte', () => {
+  const r = run('a,b,c\n1,1,10\n2,2,20\n3,3,30\n4,4,40\n5,100,50\n', { chartType: 'boxplot' });
+  assert.strictEqual(r.option.series[0].type, 'boxplot');
+  assert.strictEqual(r.option.series[0].data.length, 2);
+  assert.deepStrictEqual(r.option.series[1].data, [[0, 100]]);
+  assert.deepStrictEqual(r.option.xAxis.data, ['b', 'c']);
+});
+ok('mapa de calor: celdas [x, columna, valor] y escala de color', () => {
+  const r = run('m,a,b\nx,1,2\ny,3,\n', { chartType: 'heatmap' });
+  assert.deepStrictEqual(r.option.series[0].data, [[0, 0, 1], [1, 0, 3], [0, 1, 2]]);
+  assert.strictEqual(r.option.visualMap.min, 1);
+  assert.strictEqual(r.option.visualMap.max, 3);
+  assert.deepStrictEqual(r.option.yAxis[0].data, ['a', 'b']);
+});
+ok('mapa de calor ignora histograma y modelo; la tooltip escapa HTML', () => {
+  const r = run('m,<b>\nx,1\n', { chartType: 'heatmap', histogram: true, regression: true });
+  assert.ok(!r.option.dataset);
+  assert.ok(!/<b>/.test(r.option.tooltip.formatter({ value: [0, 0, 1] })));
+});
 console.log(`\n${n} pruebas OK`);

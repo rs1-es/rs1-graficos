@@ -22,14 +22,16 @@
     const isLine = type === 'line';
     const isBar = type === 'bar';
     const isScatter = type === 'scatter';
+    const isHeat = type === 'heatmap';
+    const isBox = type === 'boxplot';
 
-    const stackMode = isBar ? cfg.barStack : 'normal';
+    const stackMode = (isBar || isLine) ? cfg.barStack : 'normal';
     const percent = stackMode === 'percent' && !cfg.diff;
     // Dos ejes Y sólo con 1-2 series sin apilar; en otro caso, un eje compartido
     // (antes, a partir de la 3.ª serie había ejes ocultos con escalas distintas)
     const sepAxes = !isPie && yCols.length <= 2 && stackMode === 'normal' && !cfg.histogram;
-    const useHist = cfg.histogram && !isPie;
-    const useModel = cfg.regression && !isPie && !useHist;
+    const useHist = cfg.histogram && !isPie && !isHeat && !isBox;
+    const useModel = cfg.regression && !isPie && !isHeat && !isBox && !useHist;
     const notes = [];
     if (useModel && cfg.xType === 'category') {
       notes.push(t('warnRegX'));
@@ -56,22 +58,126 @@
     const series = [];
     const stats = [];
 
+    // Estadísticas sobre los valores de UNA serie (ya con diferencias si procede)
+    const pushStats = (name, values) => {
+      if (!(cfg.showAvg || cfg.showMin || cfg.showMax || cfg.showMedian || cfg.showDev)) return;
+      const s = D.summarize(values);
+      if (!s) return;
+      if (cfg.showAvg) stats.push({ label: `${name} - ${t('statAvg')}`, value: s.mean });
+      if (cfg.showMin) stats.push({ label: `${name} - ${t('statMin')}`, value: s.min });
+      if (cfg.showMax) stats.push({ label: `${name} - ${t('statMax')}`, value: s.max });
+      if (cfg.showMedian) stats.push({ label: `${name} - ${t('statMedian')}`, value: s.median });
+      if (cfg.showDev) stats.push({ label: `${name} - ${t('statDev')}`, value: s.deviation });
+    };
+
+    // Opción común a todos los tipos
+    const baseOption = (trigger, extra) => ({
+      animation: rows.length <= 5000,
+      aria: { enabled: true },
+      title: { text: ctx.title, textStyle: { color: colors.fg } },
+      tooltip: { trigger, valueFormatter: (v) => fmt(v) },
+      toolbox: {
+        feature: {
+          dataZoom: { yAxisIndex: false, title: { zoom: t('tbZoom'), back: t('tbZoomReset') } },
+          // El fondo evita PNG transparentes (ilegibles en modo oscuro)
+          saveAsImage: { title: t('tbSave'), backgroundColor: colors.bg },
+          dataView: { readOnly: true, title: t('tbData') }
+        }
+      },
+      legend: { type: 'scroll', bottom: 0, padding: [0, 0, 7, 0], textStyle: { color: colors.fg } },
+      ...extra
+    });
+
+    const mkY = (name) => ({
+      type: 'value',
+      alignTicks: true,
+      name,
+      nameLocation: 'middle',
+      nameGap: 45,
+      nameRotate: 90,
+      nameTextStyle: { color: colors.fg },
+      axisLabel: { color: colors.soft, formatter: (v) => compact.format(v) },
+      axisLine: { show: true, lineStyle: { color: colors.soft } },
+      splitLine: { lineStyle: { color: colors.split } },
+      ...(cfg.yMin !== null ? { min: cfg.yMin } : {}),
+      ...(cfg.yMax !== null ? { max: cfg.yMax } : {})
+    });
+    const mkCategoryX = (name, data) => ({
+      type: 'category',
+      data,
+      name,
+      nameLocation: 'middle',
+      nameGap: 40,
+      nameTextStyle: { backgroundColor: colors.labelBg, color: colors.fg },
+      axisLabel: { color: colors.soft, rotate: 30, width: 100, overflow: 'truncate' },
+      axisLine: { lineStyle: { color: colors.soft } }
+    });
+    const esc = (v) => String(v).replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+
+    // Mapa de calor y caja y bigotes: trabajan con los datos directamente (sin dataset)
+    if (isHeat || isBox) {
+      const names = yCols.map((k) => header[k]);
+      yCols.forEach((k, j) => pushStats(names[j], rows.map((r) => r[k])));
+
+      if (isBox) {
+        const outliers = [];
+        const data = yCols.map((k, j) => {
+          const q = D.boxStats(rows.map((r) => r[k]));
+          if (!q) return [null, null, null, null, null];
+          q.outliers.forEach((v) => outliers.push([j, v]));
+          return [q.low, q.q1, q.median, q.q3, q.high];
+        });
+        const option = baseOption('item', {
+          grid: { containLabel: false, width: '65%', left: 'center', top: 40, bottom: 80 },
+          xAxis: mkCategoryX('', names),
+          yAxis: [mkY('')],
+          series: [
+            { type: 'boxplot', name: ctx.title, data },
+            { type: 'scatter', name: t('outliers'), data: outliers, symbolSize: 6 }
+          ]
+        });
+        option.tooltip.formatter = (p) => {
+          if (p.seriesType === 'scatter') return `${esc(names[p.value[0]])}<br/>${esc(t('outliers'))}: ${fmt(p.value[1])}`;
+          const v = p.value.slice(1);
+          const labels = [t('statMin'), 'Q1', t('statMedian'), 'Q3', t('statMax')];
+          return `${esc(p.name)}<br/>` + labels.map((l, i) => `${esc(l)}: ${fmt(v[i])}`).join('<br/>');
+        };
+        return { option, stats, notes };
+      }
+
+      const xs = rows.map((r) => String(r[xi]));
+      const data = [];
+      let lo = Infinity;
+      let hi = -Infinity;
+      yCols.forEach((k, j) => rows.forEach((r, i) => {
+        const v = r[k];
+        if (!D.isNum(v)) return;
+        data.push([i, j, v]);
+        if (v < lo) lo = v;
+        if (v > hi) hi = v;
+      }));
+      if (data.length === 0) throw D.fail('noData');
+      const option = baseOption('item', {
+        grid: { containLabel: false, width: '65%', left: 'center', top: 40, bottom: 110 },
+        xAxis: { ...mkCategoryX(header[xi], xs), splitArea: { show: true } },
+        yAxis: [{ type: 'category', data: names, axisLabel: { color: colors.soft }, axisLine: { lineStyle: { color: colors.soft } }, splitArea: { show: true } }],
+        visualMap: {
+          min: lo, max: hi, calculable: true, orient: 'horizontal', left: 'center', bottom: 10,
+          textStyle: { color: colors.fg }, inRange: { color: ['#dbeafe', '#3b82f6', '#1e3a8a'] }
+        },
+        series: [{ type: 'heatmap', name: ctx.title, data, label: { show: data.length <= 150, formatter: (p) => fmt(p.value[2]) } }]
+      });
+      delete option.legend;
+      option.tooltip.formatter = (p) => `${esc(xs[p.value[0]])}<br/>${esc(names[p.value[1]])}: ${fmt(p.value[2])}`;
+      return { option, stats, notes };
+    }
+
     yCols.forEach((k, j) => {
       const name = header[k];
       let st = D.seriesTable(rows, header, xi, k, zi);
       if (cfg.diff) st = D.diffTable(st);
 
-      // Estadísticas sobre los valores de ESTA serie (ya con diferencias si procede)
-      if (cfg.showAvg || cfg.showMin || cfg.showMax || cfg.showMedian || cfg.showDev) {
-        const s = D.summarize(st.rows.map((r) => r[1]));
-        if (s) {
-          if (cfg.showAvg) stats.push({ label: `${name} - ${t('statAvg')}`, value: s.mean });
-          if (cfg.showMin) stats.push({ label: `${name} - ${t('statMin')}`, value: s.min });
-          if (cfg.showMax) stats.push({ label: `${name} - ${t('statMax')}`, value: s.max });
-          if (cfg.showMedian) stats.push({ label: `${name} - ${t('statMedian')}`, value: s.median });
-          if (cfg.showDev) stats.push({ label: `${name} - ${t('statDev')}`, value: s.deviation });
-        }
-      }
+      pushStats(name, st.rows.map((r) => r[1]));
 
       if (percent) {
         st = {
@@ -179,24 +285,7 @@
       }
     });
 
-    const totalRows = rows.length;
-    const option = {
-      animation: totalRows <= 5000,
-      aria: { enabled: true },
-      title: { text: ctx.title, textStyle: { color: colors.fg } },
-      tooltip: { trigger: isPie ? 'item' : 'axis', valueFormatter: (v) => fmt(v) },
-      toolbox: {
-        feature: {
-          dataZoom: { yAxisIndex: false, title: { zoom: t('tbZoom'), back: t('tbZoomReset') } },
-          // El fondo evita PNG transparentes (ilegibles en modo oscuro)
-          saveAsImage: { title: t('tbSave'), backgroundColor: colors.bg },
-          dataView: { readOnly: true, title: t('tbData') }
-        }
-      },
-      legend: { type: 'scroll', bottom: 0, padding: [0, 0, 7, 0], textStyle: { color: colors.fg } },
-      dataset: datasets,
-      series
-    };
+    const option = baseOption(isPie ? 'item' : 'axis', { dataset: datasets, series });
 
     if (!isPie) {
       const xType = cfg.xType;
@@ -213,20 +302,6 @@
         axisLine: { lineStyle: { color: colors.soft } },
         ...(clip ? { min: 'dataMin', max: 'dataMax' } : {})
       };
-      const mkY = (name) => ({
-        type: 'value',
-        alignTicks: true,
-        name,
-        nameLocation: 'middle',
-        nameGap: 45,
-        nameRotate: 90,
-        nameTextStyle: { color: colors.fg },
-        axisLabel: { color: colors.soft, formatter: (v) => compact.format(v) },
-        axisLine: { show: true, lineStyle: { color: colors.soft } },
-        splitLine: { lineStyle: { color: colors.split } },
-        ...(cfg.yMin !== null ? { min: cfg.yMin } : {}),
-        ...(cfg.yMax !== null ? { max: cfg.yMax } : {})
-      });
       if (sepAxes) {
         option.yAxis = yCols.map((k) => mkY(useHist ? t('freqAxis') : header[k]));
       } else {

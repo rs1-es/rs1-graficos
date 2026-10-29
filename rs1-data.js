@@ -262,9 +262,31 @@
     return { min: v[0], max: v[n - 1], mean, median, deviation };
   };
 
+  // Cuartiles (interpolación lineal) y bigotes de Tukey (1,5 · IQR) para caja y bigotes
+  const boxStats = (values) => {
+    const v = finiteValues(values).sort((a, b) => a - b);
+    const n = v.length;
+    if (n === 0) return null;
+    const q = (p) => {
+      const pos = (n - 1) * p;
+      const lo = Math.floor(pos);
+      return v[lo] + (v[Math.min(lo + 1, n - 1)] - v[lo]) * (pos - lo);
+    };
+    const q1 = q(0.25);
+    const median = q(0.5);
+    const q3 = q(0.75);
+    const iqr = q3 - q1;
+    const inside = v.filter((x) => x >= q1 - 1.5 * iqr && x <= q3 + 1.5 * iqr);
+    return {
+      q1, median, q3,
+      low: inside[0], high: inside[inside.length - 1],
+      outliers: v.filter((x) => x < inside[0] || x > inside[inside.length - 1])
+    };
+  };
+
   const api = {
     fail, isNum, detectFileType, guessSeparator, decodeText, parseDelimited, parseCell,
-    buildTable, resolveYCols, seriesTable, diffTable, movingAverage, summarize, finiteValues
+    buildTable, resolveYCols, seriesTable, diffTable, movingAverage, summarize, boxStats, finiteValues
   };
 
   if (typeof module !== 'undefined' && module.exports) {
