@@ -160,4 +160,12 @@ ok('mapa de calor ignora histograma y modelo; la tooltip escapa HTML', () => {
   assert.ok(!r.option.dataset);
   assert.ok(!/<b>/.test(r.option.tooltip.formatter({ value: [0, 0, 1] })));
 });
+ok('tipo X automático: números, fechas ISO y categorías', () => {
+  const det = (txt) => D.detectXType(D.buildTable(txt, { ...base, xType: 'category' }));
+  assert.strictEqual(det('x,y\n1,5\n2.5,6\n10,7\n'), 'value');
+  assert.strictEqual(det('d,y\n2024-01-01,5\n2024-02-01,6\n2024-03-01 10:30,7\n'), 'time');
+  assert.strictEqual(det('d,y\nenero,5\nfebrero,6\nmarzo,7\n'), 'category');
+  assert.strictEqual(det('d,y\nFoo 1,5\nBar 2,6\n'), 'category');
+  assert.strictEqual(det('d,y\n,5\n,6\n'), 'category');
+});
 console.log(`\n${n} pruebas OK`);

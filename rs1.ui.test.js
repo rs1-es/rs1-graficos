@@ -101,6 +101,27 @@ test('el botón de compartir copia la URL con el hash', async () => {
   assert.ok(calls.clipboard[0].endsWith('#chartTitle=X'));
 });
 
+test('el tipo X se detecta al cargar (línea) y se respeta si se elige a mano', async () => {
+  const ctx = openPage();
+  const xt = ctx.d.getElementById('xType');
+  await loadCsv(ctx, 'a.csv', 'f,v\n2024-01-01,1\n2024-02-01,2\n2024-03-01,3\n');
+  assert.strictEqual(xt.value, 'time');
+  await loadCsv(ctx, 'b.csv', 'x,v\n1,1\n2,2\n3,3\n');
+  assert.strictEqual(xt.value, 'value');
+  await loadCsv(ctx, 'c.csv', 'm,v\nenero,1\nfebrero,2\n');
+  assert.strictEqual(xt.value, 'category');
+  xt.value = 'log';
+  xt.dispatchEvent(new ctx.w.Event('change', { bubbles: true }));
+  await loadCsv(ctx, 'b.csv', 'x,v\n1,1\n2,2\n3,3\n');
+  assert.strictEqual(xt.value, 'log');
+});
+
+test('en barras el tipo X se mantiene como categoría', async () => {
+  const ctx = openPage('#chartType=bar');
+  await loadCsv(ctx, 'b.csv', 'x,v\n1,1\n2,2\n3,3\n');
+  assert.strictEqual(ctx.d.getElementById('xType').value, 'category');
+});
+
 (async () => {
   let failed = 0;
   for (const [name, fn] of tests) {

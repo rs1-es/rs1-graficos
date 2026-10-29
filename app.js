@@ -3,7 +3,7 @@
 (function () {
   'use strict';
 
-  const { buildTable, detectFileType, guessSeparator, decodeText } = window.RS1Data;
+  const { buildTable, detectXType, detectFileType, guessSeparator, decodeText } = window.RS1Data;
   const { buildOption } = window.RS1Chart;
 
   // ---------- Referencias al DOM ----------
@@ -26,6 +26,7 @@
     fileName: null,
     guessedSep: ',',
     version: 0,          // se incrementa con cada archivo nuevo (clave de caché)
+    xTypeTouched: false, // el usuario eligió el tipo X (o viene en el enlace): no se autodetecta
     tableKey: null,
     table: null,
     lastOption: null
@@ -294,6 +295,22 @@
     renderTimer = setTimeout(renderNow, 200);
   };
 
+  // ---------- Tipo de eje X automático ----------
+  // Sólo en línea y puntos se detecta (numérico/tiempo); en el resto se mantiene categoría
+
+  const autoXType = () => {
+    if (state.xTypeTouched || state.text === null) return;
+    let x = 'category';
+    const cfg = readConfig();
+    if (cfg.chartType === 'line' || cfg.chartType === 'scatter') {
+      try {
+        x = detectXType(buildTable(state.text, { ...cfg, xType: 'category' }));
+      } catch (e) { /* si el archivo no se puede leer, el error se muestra al renderizar */ }
+    }
+    ui.xType.value = x;
+  };
+  const AUTO_X_TRIGGERS = ['chartType', 'xIndex', 'sep', 'includeHeader', 'columnNames', 'fileType'];
+
   // ---------- Carga de archivos ----------
 
   const loadFile = async (file) => {
@@ -313,6 +330,7 @@
     syncOptionStates();
     state.guessedSep = guessSeparator(file.name, state.text);
     ui.sep.placeholder = (state.guessedSep === '\t') ? '\\t' : state.guessedSep;
+    autoXType();
     renderNow();
   };
 
@@ -337,6 +355,8 @@
   ['input', 'change'].forEach((evt) => {
     main.addEventListener(evt, (e) => {
       if (e.target === ui.file) return;
+      if (e.target === ui.xType) state.xTypeTouched = true;
+      else if (AUTO_X_TRIGGERS.includes(e.target.id)) autoXType();
       // Tocar un parámetro (columna, dirección) activa el interruptor de su opción
       const switchId = e.target.dataset && e.target.dataset.enables;
       if (switchId && !ui[switchId].checked) ui[switchId].checked = true;
@@ -375,6 +395,7 @@
         el.value = v;
       }
     });
+    state.xTypeTouched = params.has('xType');
   };
 
   ui.shareBtn.addEventListener('click', async () => {

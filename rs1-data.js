@@ -196,6 +196,18 @@
     return { header: makeHeader(src.headerRaw, o.names, src.width), rows: src.rows, xi };
   };
 
+  // Tipo de eje X según la columna X de una tabla leída como categoría: numérico si casi todos
+  // los valores son números; tiempo si casi todos son fechas ISO (AAAA-MM[-DD][ hh:mm]); si no, categoría
+  const ISO_DATE = /^\d{4}[-/]\d{1,2}([-/]\d{1,2})?([T ]\d{1,2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:?\d{2})?)?$/;
+  const detectXType = (table) => {
+    const vals = table.rows.map((r) => r[table.xi]).filter((v) => v !== null && v !== undefined && v !== '');
+    if (vals.length === 0) return 'category';
+    const share = (fn) => vals.filter(fn).length / vals.length;
+    if (share(isNum) >= 0.9) return 'value';
+    if (share((v) => typeof v === 'string' && ISO_DATE.test(v.trim()) && toTime(v) !== null) >= 0.9) return 'time';
+    return 'category';
+  };
+
   // ---------- Selección y transformaciones ----------
 
   const resolveYCols = (table, yIndex) => {
@@ -286,7 +298,7 @@
 
   const api = {
     fail, isNum, detectFileType, guessSeparator, decodeText, parseDelimited, parseCell,
-    buildTable, resolveYCols, seriesTable, diffTable, movingAverage, summarize, boxStats, finiteValues
+    buildTable, detectXType, resolveYCols, seriesTable, diffTable, movingAverage, summarize, boxStats, finiteValues
   };
 
   if (typeof module !== 'undefined' && module.exports) {

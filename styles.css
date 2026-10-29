@@ -323,6 +323,8 @@ body.dragging #dropOverlay { display: flex; }
 /* Espacio para que el panel flotante no tape las últimas opciones */
 body.float-open main { padding-bottom: calc(32vh + 1em); }
 @media (max-width: 640px) {
+  /* Los botones de la cabecera pasan encima del título en lugar de solaparlo */
+  .header-actions { position: static; justify-content: center; margin-bottom: .7em; }
   .category label { min-width: 100%; }
   main { padding: 2em .6em 1em; }
 }
