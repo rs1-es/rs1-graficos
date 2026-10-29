@@ -50,6 +50,12 @@ Las capas de datos y de gráfico se prueban con Node, sin dependencias:
 node rs1.test.js   # o: npm test
 ```
 
+Análisis estático con ESLint (`npm install` la primera vez):
+
+```
+npm run lint
+```
+
 ## Despliegue
 
 `./deploy.sh` ejecuta las pruebas (si fallan, aborta) y sube a S3 (`graficos.rs1.es`) solo los archivos necesarios; requiere AWS CLI y Node.

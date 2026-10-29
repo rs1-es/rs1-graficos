@@ -8,7 +8,7 @@ const colors = { fg: '#333', soft: '#6e7079', split: '#eee', labelBg: 'white', b
 const base = { fileType: 'csv', sep: ',', hasHeader: true, names: '', xIndex: null, yIndex: null, zIndex: null,
   xType: 'category', reverse: false, chartType: 'line', barStack: 'normal', yMin: null, yMax: null, orderIndex: null,
   orderDir: 'desc', movAvg: null, regType: 'linear', groupMethod: 'sum' };
-const run = (text, over = {}, tOver = {}) => {
+const run = (text, over = {}) => {
   const cfg = { ...base, ...over };
   const table = D.buildTable(text, cfg);
   return { table, ...buildOption(table, cfg, { t, lang: 'es', title: 'x', colors }) };
