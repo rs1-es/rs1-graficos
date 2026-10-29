@@ -44,10 +44,11 @@ El botón 🔗 copia un enlace con los ajustes del gráfico en el hash de la URL
 
 ## Pruebas
 
-Las capas de datos y de gráfico se prueban con Node, sin dependencias:
+Las capas de datos y de gráfico se prueban con Node, sin dependencias. La UI (`app.js`) se prueba con jsdom y un ECharts simulado (`rs1.ui.test.js`, requiere `npm install`):
 
 ```
-node rs1.test.js   # o: npm test
+node rs1.test.js      # sólo datos y gráfico
+npm test              # todo, incluida la UI
 ```
 
 Análisis estático con ESLint (`npm install` la primera vez):

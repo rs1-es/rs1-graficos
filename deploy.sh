@@ -53,7 +53,7 @@ if ! command -v node >/dev/null 2>&1; then
 fi
 
 echo "Ejecutando pruebas..."
-node rs1.test.js >/dev/null || { echo "ERROR: Las pruebas fallan. Despliegue cancelado." >&2; exit 1; }
+npm test >/dev/null || { echo "ERROR: Las pruebas fallan (¿falta ejecutar npm install?). Despliegue cancelado." >&2; exit 1; }
 
 # Se despliega desde una copia temporal para no modificar el código fuente
 STAGE=$(mktemp -d)
