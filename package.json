@@ -1,0 +1,7 @@
+{
+  "name": "rs1-graficos",
+  "private": true,
+  "scripts": {
+    "test": "node rs1.test.js"
+  }
+}

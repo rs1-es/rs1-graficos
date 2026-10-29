@@ -41,13 +41,41 @@ if ! command -v aws >/dev/null 2>&1; then
   exit 1
 fi
 
-echo "Subiendo archivos a $BUCKET ..."
-# La whitelist (exclude * + include) garantiza que no se sube nada que
-# la página no utilice (README, pruebas, .git, etc.)
+if ! command -v node >/dev/null 2>&1; then
+  echo "ERROR: El comando 'node' no está disponible (necesario para las pruebas)." >&2
+  exit 1
+fi
+
+echo "Ejecutando pruebas..."
+node rs1.test.js >/dev/null || { echo "ERROR: Las pruebas fallan. Despliegue cancelado." >&2; exit 1; }
+
+# Se despliega desde una copia temporal para no modificar el código fuente
+STAGE=$(mktemp -d)
+trap 'rm -rf "$STAGE"' EXIT
+cp "${FILES[@]}" "$STAGE/"
+
+# Versión = hash del contenido de los archivos propios. Se añade como ?v=... a
+# los scripts y estilos en index.html, así que cada cambio invalida la caché
+# del navegador y los archivos pueden cachearse durante mucho tiempo.
+VERSIONED=(app.js i18n.js rs1-chart.js rs1-data.js theme-init.js styles.css echarts.min.js ecSimpleTransform.js ecStat.min.js)
+VERSION=$(cat "${VERSIONED[@]}" | sha1sum | cut -c1-10)
+for f in "${VERSIONED[@]}"; do
+  sed -i -E "s#((src|href)=\"$f)\"#\\1?v=$VERSION\"#" "$STAGE/index.html"
+done
+echo "Versión: $VERSION"
+
 INCLUDES=()
-for f in "${FILES[@]}"; do
+for f in "${VERSIONED[@]}"; do
   INCLUDES+=(--include "$f")
 done
-aws s3 sync . "$BUCKET" --exclude '*' "${INCLUDES[@]}"
+
+echo "Subiendo archivos a $BUCKET ..."
+# 1) Scripts y estilos (versionados): caché larga
+aws s3 sync "$STAGE" "$BUCKET" --exclude '*' "${INCLUDES[@]}" \
+  --cache-control 'public, max-age=31536000, immutable'
+# 2) Resto (index.html, sitemap, favicon) al final: siempre revalidar
+aws s3 sync "$STAGE" "$BUCKET" --exclude '*' \
+  --include index.html --include sitemap.xml --include favicon.png --include favicon.svg \
+  --cache-control 'no-cache'
 
 echo "Despliegue completado."

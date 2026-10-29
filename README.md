@@ -37,9 +37,10 @@ Archivos propios del proyecto:
 Las capas de datos y de gráfico se prueban con Node, sin dependencias:
 
 ```
-node rs1.test.js
+node rs1.test.js   # o: npm test
 ```
 
 ## Despliegue
 
-`./deploy.sh` sube a S3 (`graficos.rs1.es`) solo los archivos necesarios; requiere AWS CLI.
+`./deploy.sh` ejecuta las pruebas (si fallan, aborta) y sube a S3 (`graficos.rs1.es`) solo los archivos necesarios; requiere AWS CLI y Node.
+Añade a scripts y estilos un `?v=<hash>` en una copia temporal y los sube con caché larga; `index.html` se sube con `no-cache`.
