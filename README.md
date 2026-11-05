@@ -59,7 +59,7 @@ npm run lint
 
 ## Despliegue
 
-`./deploy.sh` ejecuta las pruebas (si fallan, aborta) y sube a S3 (`graficos.rs1.es`) solo los archivos necesarios; requiere AWS CLI y Node.
+`./deploy.sh <bucket>` ejecuta las pruebas (si fallan, aborta) y sube al bucket de S3 indicado solo los archivos necesarios; requiere AWS CLI y Node.
 Añade a scripts y estilos un `?v=<hash>` en una copia temporal y los sube con caché larga; `index.html` se sube con `no-cache`.
 
 ## Licencias de terceros

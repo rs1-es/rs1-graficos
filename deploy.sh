@@ -1,9 +1,16 @@
 #!/usr/bin/env bash
-# Despliega la página al bucket S3 "graficos.rs1.es".
+# Despliega la página a un bucket S3.
+# Uso: ./deploy.sh <bucket>   (por ejemplo: ./deploy.sh mi-bucket  o  ./deploy.sh s3://mi-bucket/)
 # Se suben solamente los archivos necesarios para que funcione la página.
 set -euo pipefail
 
-BUCKET='s3://graficos.rs1.es/'
+if [[ $# -ne 1 || -z $1 ]]; then
+  echo "Uso: $0 <bucket>" >&2
+  exit 1
+fi
+# Acepta "nombre", "s3://nombre" o "s3://nombre/"
+BUCKET="s3://${1#s3://}"
+BUCKET="${BUCKET%/}/"
 
 # Archivos esenciales: si falta alguno, aborta el despliegue
 FILES=(
