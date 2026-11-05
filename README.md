@@ -4,7 +4,7 @@ Herramienta web para crear gráficos (con [Apache ECharts](https://echarts.apach
 
 ## Prueba online
 
-[https://graficos.rs1.es]
+<https://graficos.rs1.es>
 
 ## Requisitos
 
@@ -61,3 +61,8 @@ npm run lint
 
 `./deploy.sh` ejecuta las pruebas (si fallan, aborta) y sube a S3 (`graficos.rs1.es`) solo los archivos necesarios; requiere AWS CLI y Node.
 Añade a scripts y estilos un `?v=<hash>` en una copia temporal y los sube con caché larga; `index.html` se sube con `no-cache`.
+
+## Licencias de terceros
+
+`echarts.min.js` es de Apache ECharts (licencia Apache 2.0, cabecera incluida en el propio archivo).
+`ecStat.min.js` y `ecSimpleTransform.js` proceden de los repositorios enlazados arriba, cada uno con su licencia.
