@@ -62,7 +62,12 @@ npm run lint
 `./deploy.sh <bucket>` ejecuta las pruebas (si fallan, aborta) y sube al bucket de S3 indicado solo los archivos necesarios; requiere AWS CLI y Node.
 Añade a scripts y estilos un `?v=<hash>` en una copia temporal y los sube con caché larga; `index.html` se sube con `no-cache`.
 
+## Licencia
+
+Código propio bajo licencia [MIT](LICENSE).
+
 ## Licencias de terceros
 
 `echarts.min.js` es de Apache ECharts (licencia Apache 2.0, cabecera incluida en el propio archivo).
+Las librerías de terceros mantienen su propia licencia y no están cubiertas por la MIT del proyecto.
 `ecStat.min.js` y `ecSimpleTransform.js` proceden de los repositorios enlazados arriba, cada uno con su licencia.

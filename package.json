@@ -1,6 +1,7 @@
 {
   "name": "rs1-graficos",
   "private": true,
+  "license": "MIT",
   "scripts": {
     "test": "node rs1.test.js && node rs1.ui.test.js",
     "lint": "eslint ."
