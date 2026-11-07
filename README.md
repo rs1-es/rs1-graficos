@@ -42,6 +42,14 @@ Archivos propios del proyecto:
 
 El botón 🔗 copia un enlace con los ajustes del gráfico en el hash de la URL (nunca los datos). Al abrirlo se restauran las opciones; el archivo hay que cargarlo de nuevo.
 
+## Desarrollo
+
+```
+npm run dev
+```
+
+Servidor local sin dependencias en <http://localhost:8080> (sin caché; puerto opcional: `node dev-server.js 3000`).
+
 ## Pruebas
 
 Las capas de datos y de gráfico se prueban con Node, sin dependencias. La UI (`app.js`) se prueba con jsdom y un ECharts simulado (`rs1.ui.test.js`, requiere `npm install`):

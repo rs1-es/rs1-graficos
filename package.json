@@ -3,6 +3,7 @@
   "private": true,
   "license": "MIT",
   "scripts": {
+    "dev": "node dev-server.js",
     "test": "node rs1.test.js && node rs1.ui.test.js",
     "lint": "eslint ."
   },
