@@ -40,8 +40,8 @@
       </div>
       </div>
       <div class="formcol">
-      <div class="step">
-        <h2 class="step-title"><span class="num">1</span> <span data-i18n="step1">Carga un archivo</span></h2>
+      <details class="step collapsible" id="fileStep" open>
+        <summary><h2 class="step-title"><span class="num">1</span> <span data-i18n="step1">Carga un archivo</span> <span class="step-file" id="stepFile"></span></h2></summary>
         <div class="grid">
           <div class="category full">
             <label for="file" data-i18n="dataFile">Archivo de datos:</label>
@@ -69,7 +69,7 @@
             <span class="hint" id="hintHeader" data-i18n="hintHeader">(CSV/TSV: Selecciona si los datos incluyen nombres de columnas)</span>
           </div>
         </div>
-      </div>
+      </details>
       <div class="step">
         <h2 class="step-title"><span class="num">2</span> <span data-i18n="step2">Modifica datos de entrada</span></h2>
         <div class="grid">
@@ -87,7 +87,7 @@
       </div>
       <div class="step">
         <h2 class="step-title"><span class="num">3</span> <span data-i18n="step3">Configura el gráfico</span></h2>
-                <details class="group" open>
+                <details class="group" name="opciones" open>
           <summary data-i18n="grpChart">Tipo y aspecto</summary>
           <div class="grid">
               <div class="category">
@@ -138,7 +138,7 @@
             <span class="hint" id="hintSymbols" data-i18n="hintSymbols">(Solo para gráficos de líneas: muestra un punto en cada valor)</span>
           </div>
         </details>
-        <details class="group" open>
+        <details class="group" name="opciones">
           <summary data-i18n="grpAxes">Columnas y ejes</summary>
           <div class="grid">
               <div class="category">
@@ -170,7 +170,7 @@
               </div>
           </div>
         </details>
-        <details class="group">
+        <details class="group" name="opciones">
           <summary data-i18n="grpStats">Estadísticas</summary>
           <div class="grid chips">
               <div class="category chip">
@@ -200,7 +200,7 @@
               </div>
           </div>
         </details>
-        <details class="group">
+        <details class="group" name="opciones">
           <summary data-i18n="grpTransform">Transformaciones</summary>
           <div class="grid">
               <div class="category" data-not="heatmap boxplot">

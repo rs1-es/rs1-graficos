@@ -14,7 +14,7 @@
     'xType', 'yMin', 'yMax', 'showAvg', 'showMin', 'showMax', 'showMedian', 'showDev',
     'calcDiffCheck', 'histogram', 'groupCheck', 'groupMethod', 'sortCheck', 'orderIndex', 'orderDir',
     'movAvg', 'movAvgPeriod', 'regression', 'regType',
-    'chart', 'stats', 'chartStep', 'chartFloat', 'chartFloatInner', 'shareBtn'
+    'fileStep', 'stepFile', 'chart', 'stats', 'chartStep', 'chartFloat', 'chartFloatInner', 'shareBtn'
   ];
   const ui = Object.fromEntries(IDS.map((id) => [id, document.getElementById(id)]));
   const chartCol = document.querySelector('.chartcol');
@@ -326,12 +326,15 @@
       return;
     }
     state.version++;
+    ui.stepFile.textContent = `— ${file.name}`;
     ui.fileType.value = detectFileType(file.name, state.text);
     syncOptionStates();
     state.guessedSep = guessSeparator(file.name, state.text);
     ui.sep.placeholder = (state.guessedSep === '\t') ? '\\t' : state.guessedSep;
     autoXType();
     renderNow();
+    // El paso 1 se pliega a una línea; sigue accesible para cambiar el archivo o el separador
+    ui.fileStep.open = false;
   };
 
   const resetFile = () => {
@@ -339,6 +342,7 @@
     state.fileName = null;
     ui.fileName.textContent = t('noFile');
     ui.fileName.style.color = '';
+    ui.stepFile.textContent = '';
   };
 
   ui.file.addEventListener('change', () => {
@@ -369,7 +373,7 @@
   // ---------- Configuración en la URL ----------
   // Sólo se guardan los ajustes que difieren de los valores iniciales; nunca los datos
   const SHARE_IDS = IDS.filter((id) => !['file', 'fileName', 'fileType', 'chart', 'stats', 'chartStep',
-    'chartFloat', 'chartFloatInner', 'shareBtn'].includes(id));
+    'chartFloat', 'chartFloatInner', 'shareBtn', 'fileStep', 'stepFile'].includes(id));
   const valueOf = (el) => (el.type === 'checkbox' ? (el.checked ? '1' : '0') : el.value);
   const defaults = Object.fromEntries(SHARE_IDS.map((id) => [id, valueOf(ui[id])]));
 

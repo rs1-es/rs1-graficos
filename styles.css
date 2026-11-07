@@ -400,3 +400,33 @@ input:disabled, select:disabled { cursor: not-allowed; }
 .grid.chips { display: flex; flex-wrap: wrap; gap: .2em 1.6em; }
 .category.chip { border-bottom: 0; }
 .category.chip label { min-width: 0; }
+
+/* Paso 1 plegable: al cargar un archivo se reduce a una línea con su nombre */
+.collapsible > summary { list-style: none; cursor: pointer; }
+.collapsible > summary::-webkit-details-marker { display: none; }
+.collapsible > summary .step-title { margin-bottom: 1em; }
+.collapsible > summary .step-title::after {
+  content: '▾';
+  margin-left: auto;
+  color: var(--text-soft);
+  transition: transform .15s;
+}
+.collapsible:not([open]) > summary .step-title {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+.collapsible:not([open]) > summary .step-title::after { transform: rotate(-90deg); }
+.collapsible > summary:focus-visible { outline: 2px solid var(--primary); outline-offset: 4px; border-radius: 8px; }
+.step-file {
+  display: none;
+  font-weight: 400;
+  font-size: .85em;
+  font-style: italic;
+  color: var(--text-soft);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+.collapsible:not([open]) .step-file:not(:empty) { display: inline; }
